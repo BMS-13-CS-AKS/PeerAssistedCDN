@@ -1,0 +1,53 @@
+<html>
+<head>
+  <style>
+    div{
+    height:30px;
+    display: block;
+    margin-bottom: 10px;
+    }
+    div > *{
+      height:100%;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <p>
+    Example of "thor" implementation:<br/>
+    <ol>
+      <li>open console and execute the below commands</li>
+      <li>var a = new thor([address of signaling server]);</li>
+      <li>a.name = "whateveryoulike"</li>
+      <li>a.start();</li>
+      <li>do the above steps for another tab</li>
+      <li>a.connect([other peers name]);</li>
+    </ol>
+    Thor was made for multiple connections so we can create
+    multiple channels with ease.
+    <br/><br/>
+    <b>Note:</b> You can skip step 2 and thor object will choose
+    its own random 20 character ids.
+    <br/><br/>
+    Also,the below boxes do nothing.I was too lazy.Please be
+    happy with the "data channel open" message
+  </p>
+  <div>
+    <input id="user" type="text"/>
+    <button id="userbutton">Login</button>
+  </div>
+  <div>
+    <input id="peer" type="text"/>
+    <button id="peerbutton">Peer</button>
+  </div>
+  <div>
+    <input id="message" type="text"/>
+    <button id="sendbutton">Send</button>
+  </div>
+  <div>
+    <p id="rcv">Here text will show</p>
+  </div>
+  <script src="adapter-latest.js"></script>
+  <script src="asgard.js"></script>
+</body>
+</html>

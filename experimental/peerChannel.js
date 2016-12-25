@@ -126,6 +126,7 @@ var peerChannel = function(peerName,signal,configuration){
   }
 }
 peerChannel.prototype.toString = function () {
-  return this.peerName;
+  return this.name;
 };
+//TODO : Create tostring
 module.exports = peerChannel;

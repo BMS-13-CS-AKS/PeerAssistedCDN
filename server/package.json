@@ -1,0 +1,19 @@
+{
+  "name": "SignalingServer",
+  "version": "1.0.0",
+  "description": "signaling/tracker approximation",
+  "main": "signaling.js",
+  "dependencies": {
+    "ws": "^1.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node signaling.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BMS-13-CS-AKS/PeerAssistedCDN/"
+  },
+  "author": "Suhail Muhammed",
+  "license": "ISC"
+}

@@ -1,6 +1,4 @@
 var peerChannel = require("./peerChannel.js");
-
-// TODO : Properly hide all functions
 var thor = function(address){
   var that = this;
   var peerList = {};
@@ -34,10 +32,6 @@ var thor = function(address){
 
   }
   this.start = function(){
-    if(!this.name)
-    {
-      this.name = randomUserName();
-    }
     login();
   }
   this.connect = function(name){
@@ -47,14 +41,6 @@ var thor = function(address){
                                 trackerServer,
                                 configuration);
     peerList[name].offerConnection();
-  }
-  var randomUserName = function(){
-    var chars = "abcdefghijklmnopqrstuvwxyz0123456789"
-    var res = "";
-    for(i=0;i<20;i++){
-      res += chars[Math.floor(Math.random()*36)];
-    }
-    return res;
   }
   var login = function(){
     console.log(

@@ -71,7 +71,8 @@ wss.on('connection', function(connection) {
             break;
 
          case "answer":
-            console.log("Sending answer to: ", data.name);
+            console.log("Sending answer to: ", data.name,"from "
+                                      ,connection.name);
             //for ex. UserB answers UserA
             var conn = users[data.name];
 
@@ -79,7 +80,8 @@ wss.on('connection', function(connection) {
                connection.otherName = data.name;
                sendTo(conn, {
                   type: "answer",
-                  answer: data.answer
+                  answer: data.answer,
+                  name: connection.name
                });
             }
 
@@ -92,7 +94,8 @@ wss.on('connection', function(connection) {
             if(conn != null) {
                sendTo(conn, {
                   type: "candidate",
-                  candidate: data.candidate
+                  candidate: data.candidate,
+                  name:connection.name
                });
             }
 
