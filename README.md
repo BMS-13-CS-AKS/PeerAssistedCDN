@@ -3,26 +3,27 @@
 Make sure node.js is installed
 #### Run the signaling server:
 
-Open a new terminal
-Change directory to server,then:
+In a new terminal:
 
 ```bash
-cd PeerAssistedCDN/server
+cd [pathtorepos]/PeerAssistedCDN/server
+npm install # Need not be done if already installed deps
 node signaling.js
 ```
 
 #### To host the test site:
 
-Open a new terminal
-Install node-static:
+In a new terminal
+
+Make sure node-static is installed:
 
 ```bash
-npm install -g node-static
+npm install -g node-static # Need not be one of already installed
 ```
 
-Change directory to PeerAssistedCDN/site,then run
+host the files:
 
 ```bash
-cd PeerAssistedCDN/site
+cd [pathtorepos]/PeerAssistedCDN/site
 static -a 0.0.0.0
 ```
