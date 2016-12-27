@@ -28,15 +28,26 @@ connection.onmessage = function(message){
   data = JSON.parse(message.data);
   switch(data.type)
   {
+    // After we send a login message with a username the
+    // server returns success or failure(in case of
+    // clash of names)
     case 'login':onLogin(data.success);break;
+
+    // Offer from another peer
     case 'offer':onOffer(data.offer,data.name);break;
+
+    // Answer from another peer
     case 'answer':onAnswer(data.answer);break;
+
+    // Candidate from another peer
     case 'candidate':onReceiveCandidate(data.candidate);break;
     default:console.log("Could not parse:" + data);
   }
 
 }
+
 // Function to send JSON to signaling server
+// Takes as input a JSON object and sends a string to the server
 function sendMessage(message){
   connection.send(JSON.stringify(message));
 }
@@ -50,6 +61,7 @@ function userButtonClicked(event){
     username = text;
   }
 }
+
 // This is called when we get login success msg from server
 function onLogin(success){
   if(success)
@@ -62,9 +74,11 @@ function onLogin(success){
 // This involves:
 // creating new RTCPeerConnection object
 // Setting onicecandidate handler for the object
+//   Note: icecandidates will start being generated once
+//   you have set local description
 // creating data channel for the object
 // creating sdp offer using the object
-// setting local description to that offer
+// setting local description
 // sending offer to the peer via signaling server
 function peerButtonClicked(event){
   peername = peerText.value;
@@ -85,11 +99,10 @@ function createPeerConnection(){
   };
   //configuration = null;
   some = null;
-  peerConnection = new RTCPeerConnection(configuration,some/*{
-           optional: [{RtpDataChannels: true}]
-        }*/);
+  peerConnection = new RTCPeerConnection(configuration,some);
   peerConnection.onicecandidate = onIceCandidate;
 }
+
 // icecandidate handler
 // whenever we receive a Ice candidate event ...
 // ....we send the ice candidate to the peer
@@ -103,7 +116,7 @@ function onIceCandidate(event){
     });
 }
 
-// Sending an offer to another peer via signaling serve
+// Sending an offer to another peer via signaling server
 function sendOffer(peername){
   peerConnection.createOffer().then(function(offer1){
     console.log("Offer created");
