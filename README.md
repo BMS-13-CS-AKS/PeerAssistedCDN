@@ -11,7 +11,7 @@ npm install # Need not be done if already installed deps
 node signaling.js
 ```
 
-#### To host the test site:
+#### To host the example site:
 
 In a new terminal
 
