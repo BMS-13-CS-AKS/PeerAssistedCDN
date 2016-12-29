@@ -1,9 +1,15 @@
 # Peer Assisted Content Delivery
 
-#### [WebRTC explained](https://github.com/BMS-13-CS-AKS/PeerAssistedCDN/blob/master/site/webRTC.md)
+## Description
 
-## Try out the example site
+Extending the traditional centralised content delivery used in websites with a p2p network.
+
+
+## Installation
+
 Make sure node.js is installed
+Note : These instructions are only for hosting the test site.
+
 #### Run the signaling server:
 
 In a new terminal:
@@ -30,3 +36,8 @@ host the files:
 cd [pathtorepos]/PeerAssistedCDN/site
 static -a 0.0.0.0
 ```
+
+## The Road So Far
+
+This section is meant for contributers 
+### [WebRTC explained](https://github.com/BMS-13-CS-AKS/PeerAssistedCDN/blob/master/site/webRTC.md)
