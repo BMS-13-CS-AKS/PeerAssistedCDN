@@ -37,7 +37,4 @@ cd [pathtorepos]/PeerAssistedCDN/site
 static -a 0.0.0.0
 ```
 
-## The Road So Far
-
-This section is meant for contributers 
-### [WebRTC explained](https://github.com/BMS-13-CS-AKS/PeerAssistedCDN/blob/master/site/webRTC.md)
+## [Get up to date on the progress](https://github.com/BMS-13-CS-AKS/PeerAssistedCDN/wiki/Overview-For-Contributers)
