@@ -49,13 +49,13 @@ var peerChannel = function(peerName,signal,configuration){
     that.dataChannel =
       that.peerConnection.createDataChannel(
       "Something", {reliable:false} );
-      that.onDataChannelCreation();
+    onDataChannelCreation();
 
   }
   var acceptDataChannel = function(){
     that.peerConnection.ondatachannel = function(event){
       that.dataChannel = event.channel;
-      that.onDataChannelCreation();
+      onDataChannelCreation();
     };
   }
   var sendAnswer = function(){
@@ -73,12 +73,7 @@ var peerChannel = function(peerName,signal,configuration){
                                                   localUnsuccess);
     });
   }
-  this.onDataChannelCreation = function(){
-    console.log("Data Channel Created");
-    this.dataChannel.onopen = function(event){
-      console.log("Data Channel is now open");
-    }
-  }
+
   this.offerConnection = function(){
     createNewConnection();
     createDataChannel();
@@ -106,6 +101,19 @@ var peerChannel = function(peerName,signal,configuration){
                                                 remoteSuccess,
                                                 remoteUnsuccess);
   }
+
+  var onDataChannelCreation = function () {
+    console.log("Data Channel Created");
+    var par = that;
+    that.dataChannel.onopen = function(event){
+      par.onopen(event);
+    }
+    that.dataChannel.onmessage = function(event){
+      par.onmessage(event);
+    }
+
+  }
+
   var iceAddedSuccess = function(event){
     console.log("Added Ice Successfully");
   }
@@ -125,7 +133,14 @@ var peerChannel = function(peerName,signal,configuration){
     console.log("Remote description set Successfully");
   }
 }
+peerChannel.prototype.onopen = function(event){
+  console.log("Data Channel Is Now Open");
+}
+peerChannel.prototype.onmessage = function(event){
+  console.log("Received Message",event.data);
+}
+
 peerChannel.prototype.toString = function () {
   return this.peerName;
-};
+}
 module.exports = peerChannel;
