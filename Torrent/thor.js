@@ -1,6 +1,6 @@
 var peerChannel = require("./peerChannel.js");
 var thorFile = require("./thorFile.js")
-
+var logger = require("../util/log.js")
 // TODO : Properly hide all functions
 // Thor
 // parameters:
@@ -53,7 +53,9 @@ var thor = function(address){
       break;
       case 'candidate':onReceiveCandidate(data.candidate,data.name);
       break;
-      default:console.log("Could not parse:" + data);
+      case 'response':onResponse();
+      break;
+      default:logger.ERROR("Could not parse:" + data);
     }
 
   }
@@ -71,7 +73,7 @@ var thor = function(address){
   // TODO: make sure we are connected to the websocket server first before
   // attempting connection
   this.connect = function(name){
-    console.log("Offering connection to "+ name);
+    logger.INFO("Offering connection to "+ name);
     peerList[name] = new peerChannel(
                                 name,
                                 trackerServer,
@@ -91,7 +93,7 @@ var thor = function(address){
 
   // send a login message to the server
   var login = function(){
-    console.log(
+    logger.INFO(
       "Attempting to capture username "+ that.name );
     trackerServer.sendJSON({
       type:"login",
@@ -103,8 +105,14 @@ var thor = function(address){
   // TODO: In case of unsuccesfull login we might want to retry a given number of
   // times
   var onLogin  = function(success){
-    if(success){
-      console.log("Captured Username");
+    if(success)
+    {
+      logger.INFO("Captured Username");
+      startControlLoop();
+    }
+    else
+    {
+      logger.ERROR("Failed to capture username");
     }
   }
 
@@ -112,14 +120,14 @@ var thor = function(address){
   var onOffer = function(offer,name){
     if(!peerList[name])
     {
-      console.log("Accepting connection from "+ name);
+      logger.INFO("Accepting connection from "+ name);
       peerList[name] = new peerChannel(
                                   name,
                                   trackerServer,
                                   configuration);
       peerList[name].acceptConnection(offer);
     }
-    else console.log(
+    else logger.WARN(
           "Peer Connection Exists:"+
           "Rejecting connection from "
           + name)
@@ -135,7 +143,7 @@ var thor = function(address){
 
   // When we receive a candidate from another client
   var onReceiveCandidate = function(candidate,name){
-    console.log("candidate received");
+    logger.INFO("candidate received");
     if(peerList[name]){
       peerList[name].remoteIceCandidate(candidate);
     }
@@ -147,7 +155,6 @@ var thor = function(address){
   // this function will in turn trigger the thor objects onload function
   thorFile.prototype.onload = function(event){
     var extEvent = { infoHash:this.infoHashStr ,event: event };
-    console.log("loaded");
     that.onload(extEvent);
   }
   thorFile.prototype.onHave = function(pieceIndex){
@@ -192,24 +199,24 @@ var thor = function(address){
     var message = event.data;
     if(this.introduced == 0)
     {
-      console.log("Received Handshake");
+      logger.INFO("Received Handshake");
       this.onHandshake(message);
     }
     else
     if(this.introduced == 1)
     {
-      console.log("Received bitfield");
+      logger.INFO("Received bitfield");
       this.onBitfield(message);
     }
     else
     if(message.byteLength == 24)
     {
-      console.log("Received request");
+      logger.INFO("Received request");
       this.onRequest(message);
     }
     else
     {
-      console.log("Received response")
+      logger.INFO("Received response")
       this.onResponse(message);
     }
   }
@@ -231,14 +238,14 @@ var thor = function(address){
       var infoHash16 = new Uint16Array(message,offset,10);
       var bitfield = new Uint8Array(message,offset+20,thorFiles[key].haveArray.byteLength);
       infoHash16.set(thorFiles[key].infoHash);
-      console.log("setting bitfield",thorFiles[key].haveArrayInt8);
+      logger.INFO("setting bitfield"+thorFiles[key].haveArrayInt8);
       bitfield.set(thorFiles[key].haveArrayInt8);
       var some = (20 + thorFiles[key].haveArray.byteLength);
       if(some%2 == 1)
       some++;
       offset += some;
     }
-    console.log("sending bitfield");
+    logger.INFO("sending bitfield");
     this.dataChannel.send(message);
   };
 
@@ -255,14 +262,13 @@ var thor = function(address){
     {
       var infoHash16 = new Uint16Array(message,offset,10);
       var infoHash = "";
-      console.log(offset);
       for( var i=0 ;i<10;i++)
       {
         infoHash += String.fromCharCode(infoHash16[i]);
       }
       if(!( thorFiles[infoHash] && this.theirFiles[infoHash] ) )
       {
-        console.log("Received invalid infohash",infoHash);
+        logger.WARN("Received invalid infohash",infoHash);
         break;
       }
       var bitfield = new Uint8Array(message,offset+20,thorFiles[infoHash].haveArray.byteLength);
@@ -279,7 +285,6 @@ var thor = function(address){
       offset += some;
     }
     this.introduced = 2;
-    console.log("Actual Trigger");
     this.triggerThink();
   };
 
@@ -287,7 +292,6 @@ var thor = function(address){
   peerChannel.prototype.triggerThink = function () {
     if(!this.triggerThink.triggered)
     {
-      console.log("triggering");
       this.triggerThink.triggered = true;
       setTimeout(this.think());
     }
@@ -299,7 +303,6 @@ var thor = function(address){
   // the think function should only be triggered via the triggerThink function
   //
   peerChannel.prototype.think = function () {
-    console.log("thinking");
     this.triggerThink.triggered = false;
 
     // If we are not interested in this peer theres no point making a new
@@ -326,7 +329,8 @@ var thor = function(address){
         return;
       }
       this.requestList.file = newPiece.file;
-      console.log(newPiece.pieceIndex);
+      logger.DEBUG("peer "+this.peerName+" is downloading "+
+                  newPiece.pieceIndex+newPiece.file);
       this.requestList.pieceIndex = newPiece.pieceIndex;
       this.requestList.blockList = [];
       this.requestList.requested = [];
@@ -375,8 +379,8 @@ var thor = function(address){
         var t = (~thorFiles[key].requestArrayInt8[i]) & (~thorFiles[key].haveArrayInt8[i]) & (this.theirFiles[key][i])
         if(t)
         {
-          console.log(i,t);
           var piece = Math.log2(t & ~(t-1)) + i*8;
+          thorFiles[key].setRequestPiece(piece);
           return {pieceIndex:piece,file:thorFiles[key]};
         }
       }
@@ -396,7 +400,6 @@ var thor = function(address){
     var i=0;
     for(var file in thorFiles)
     {
-      console.log(file);
       infoHash16.set(thorFiles[file].infoHash,i);
       i+=10;
     }
@@ -408,6 +411,7 @@ var thor = function(address){
   // Filter out all files that we have in common
   peerChannel.prototype.onHandshake = function ( message ) {
 
+    // TODO: Wtf does this do??
     if(!this.count)
     this.count=0;
     this.count++;
@@ -421,7 +425,6 @@ var thor = function(address){
       if(thorFiles[infoHash])
       {
         this.theirFiles[infoHash] = new Uint8Array(Math.ceil(thorFiles[infoHash].numPieces/8));
-        console.log(this.peerName,this.theirFiles);
       }
 
       i+=10;
@@ -497,7 +500,7 @@ var thor = function(address){
     blockIndex = restArr[0];
     numBlocks  = restArr[1];
 
-    console.log("Received request for ",infoHash,pieceIndex,blockIndex,numBlocks);
+    logger.INFO("Received request for "+infoHash+pieceIndex+blockIndex+numBlocks);
 
     if(thorFiles[infoHash])
     {
@@ -523,7 +526,7 @@ var thor = function(address){
     var blocks = rest.subarray(2);
     if(thorFiles[infoHash])
     {
-      console.log("received",pieceIndex,blockIndex);
+      logger.INFO("received"+pieceIndex+blockIndex);
       var val = (this.requestList.pieceIndex == pieceIndex);
       var ind = this.requestList.requested.indexOf(blockIndex);
       if((ind != -1) && val)
@@ -531,9 +534,9 @@ var thor = function(address){
       this.requestList.requested.splice(ind,1);
       window.blocks = blocks;
       if(this.requestList.file.setBlocks(pieceIndex, blockIndex, numBlocks, blocks))
-      console.log("set",pieceIndex,blockIndex);
+      logger.INFO("set"+pieceIndex+blockIndex);
       else
-      console.log("Could not set");
+      logger.WARN("Could not set");
       this.triggerThink();
       }
     }
@@ -544,9 +547,6 @@ var thor = function(address){
     var infoHash = new Uint16Array(message,0,10);
     var pieceIndex1 = new Uint16Array(message,20,1);
     var rest = new Uint8Array(message,22);
-
-    console.log(infoHash.byteLength);
-    console.log("The length of the rest is "+ rest.length);
 
     infoHash.set(file.infoHash);
     pieceIndex1[0] = pieceIndex;
@@ -563,9 +563,6 @@ var thor = function(address){
     var infoHash = new Uint16Array(message,0,10);
     var pieceIndex1 = new Uint16Array(message,20,1);
     var rest = new Uint8Array(message,22);
-
-    console.log(infoHash.byteLength);
-    console.log("The length of the rest is "+ rest.length);
 
     infoHash.set(file.infoHash);
     pieceIndex1[0] = pieceIndex;
@@ -584,7 +581,7 @@ var thor = function(address){
   this.seedFile = function(blob ,infoHash ){
     thorFiles[infoHash] = new thorFile();
     thorFiles[infoHash].getFromBlob(blob,infoHash);
-    console.log("Seeded thor file");
+    logger.INFO("Seeded thor file");
   }
   // To add file to download list
   // TODO:Right now this function must be called before connecting to peers
@@ -604,7 +601,7 @@ var thor = function(address){
 // This function is called when we have successfully loaded a file
 thor.prototype.onload = function(event)
 {
-  console.log(event);
+  logger.INFO(event);
 }
 
 window.thor = thor;

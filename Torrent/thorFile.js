@@ -83,7 +83,6 @@ var thorFile = function(){
     return this.haveArrayInt8[Math.floor(index/8)]&(1<<index%8);
   }
   this.setHavePiece = function(index){
-
     if(this.havePiece(index))
     return;
     this.haveArrayInt8[Math.floor(index/8)] |= (1<<index%8);
@@ -93,7 +92,9 @@ var thorFile = function(){
       this.oncompletion();
     }
   }
-
+  this.setRequestPiece = function(index){
+    this.requestArrayInt8[Math.floor(index/8)] |= (1<<index%8);
+  }
   // Called on completing download
   // NOTE: not to be called when seeding already completed files
   this.oncompletion = function(){
@@ -263,5 +264,8 @@ var thorFile = function(){
 }
 thorFile.prototype.onload = function(event){
   console.log("Complete",event);
+}
+thorFile.prototype.toString = function(){
+  return this.infoHashStr;
 }
 module.exports = thorFile;
