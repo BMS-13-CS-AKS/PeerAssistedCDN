@@ -150,14 +150,22 @@ var thor = function(address){
     console.log("loaded");
     that.onload(extEvent);
   }
+  thorFile.prototype.onHave = function(pieceIndex){
+
+  }
   /***************************************************************************/
   // Extending the peerChannel prototype
 
+  // Four state parameters
   peerChannel.prototype.meChoked;
   peerChannel.prototype.choked;
   peerChannel.prototype.meInterested;
   peerChannel.prototype.interested;
+
+  // Set of files that we have in common with the peer
   peerChannel.prototype.theirFiles;
+
+  // Have we introduces ourselves yet
   peerChannel.prototype.introduced;
   peerChannel.prototype.requestList;
 
@@ -493,7 +501,7 @@ var thor = function(address){
 
     if(thorFiles[infoHash])
     {
-      this.sendBlock(thorFiles[infoHash],pieceIndex,blockIndex,numBlocks);
+      this.sendBlock(thorFiles[infoHash] ,pieceIndex ,blockIndex ,numBlocks);
     }
 
   }
@@ -522,7 +530,7 @@ var thor = function(address){
       {
       this.requestList.requested.splice(ind,1);
       window.blocks = blocks;
-      if(this.requestList.file.setBlocks( pieceIndex, blockIndex, numBlocks, blocks))
+      if(this.requestList.file.setBlocks(pieceIndex, blockIndex, numBlocks, blocks))
       console.log("set",pieceIndex,blockIndex);
       else
       console.log("Could not set");
@@ -530,8 +538,7 @@ var thor = function(address){
       }
     }
   }
-  var constructRequest = function(  file ,pieceIndex , blockIndex , numBlocks ){
-
+  var constructRequest = function(file, pieceIndex, blockIndex, numBlocks ){
     var length = 24;
     var message = new ArrayBuffer(length);
     var infoHash = new Uint16Array(message,0,10);
@@ -548,8 +555,9 @@ var thor = function(address){
 
     return message;
   }
-  var constructResponse = function( file ,pieceIndex , blockIndex , numBlocks , blocks ){
 
+  var constructResponse =function(
+                              file, pieceIndex, blockIndex, numBlocks, blocks){
     var length = 24 + blocks.length;
     var message = new ArrayBuffer(length);
     var infoHash = new Uint16Array(message,0,10);
@@ -566,7 +574,6 @@ var thor = function(address){
     rest.set(blocks,2);
 
     return message;
-
   }
 
   /****************************************************************************/
@@ -574,7 +581,7 @@ var thor = function(address){
   // Parameters
   // infoHash - infohash of the file
   // blob - the file or blob object
-  this.seedFile = function( blob , infoHash ){
+  this.seedFile = function(blob ,infoHash ){
     thorFiles[infoHash] = new thorFile();
     thorFiles[infoHash].getFromBlob(blob,infoHash);
     console.log("Seeded thor file");
@@ -584,14 +591,12 @@ var thor = function(address){
   // We should write it so that we can add files even after we are already
   // connected to peers
   // metaInfo - dictionary of the form {
-  //                                    infoHash : "10CHARACTERINFOHASH1",
+  //                                    infoHash : "10CHARHASH",
   //                                    size : 120000 // size in bytes
   //                                   }
-  this.addFileToDownload = function( metaInfo ){
-
+  this.addFileToDownload = function(metaInfo ){
     thorFiles[metaInfo.infoHash] = new thorFile();
     thorFiles[metaInfo.infoHash].getFromInfo(metaInfo);
-
   }
 }
 

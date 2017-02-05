@@ -1,5 +1,5 @@
 // This is our connection with the websocket server
-var connection = new WebSocket("ws://192.168.0.104:9090");
+var connection = new WebSocket("ws://127.0.0.1:9090");
 var username = '';
 
 // Our various inputs and buttons
