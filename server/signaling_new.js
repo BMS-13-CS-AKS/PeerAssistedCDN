@@ -56,6 +56,10 @@ wss.on('connection', function(connection) {
       onRequest()
       break;
 
+      case "seed":
+      onSeed();
+      break;
+
       default:
       onDefault();
       break;
@@ -141,6 +145,13 @@ wss.on('connection', function(connection) {
       {
         sendTo(connection, {type: "login",success: false});
         console.log("Failed to add new peer:",data.name);
+      }
+    }
+
+    function onSeed() {
+      for (i  = 0; i < data.infoHashes.length; i++) {
+        var infohash = data.infoHashes[i];
+        addPeer(infohash, data.name)
       }
     }
 
