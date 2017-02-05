@@ -123,6 +123,7 @@ wss.on('connection', function(connection) {
       for (i  = 0; i < data.infoHashes.length; i++) {
         var infohash = data.infoHashes[i];
         result.answer[infohash] = getPeers(infohash)
+        addPeer(infohash, data.name)
       }
       sendTo(connection, result);
     }
