@@ -4,6 +4,7 @@
   "description": "torrent client for browser",
   "main": "thor.js",
   "dependencies": {
+    "crypto-browserify": "^3.11.0",
     "sha1": "^1.1.1"
   },
   "devDependencies": {},

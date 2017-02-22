@@ -1,3 +1,7 @@
+var crypto = require('crypto-browserify')
+var log = require('../util/log.js')
+// TODO : remove this once stable
+window.infoHashList = []
 var thorFile = function(){
   var that = this;
   this.url;
@@ -194,7 +198,22 @@ var thorFile = function(){
     return this.views.arr8.subarray(range[0],range[1]+1);
 
   }
-
+  var getPieceNoVal = function( pieceIndex){
+    //find number of blocks
+    var lastPiece = that.numPieces - 1
+    var numBlocks =
+    (pieceIndex === lastPiece) ? that.lastBlockIndex + 1 : that.numBlocks;
+    log.DEBUG([that.lastBlockIndex,that.numBlocks].join());
+    log.INFO([lastPiece,numBlocks,pieceIndex].join());
+    var range = getArrayOffsets( pieceIndex , 0, numBlocks );
+    if(range == null)
+    {
+      log.ERROR("Could not get piece"+pieceIndex);
+      return null;
+    }
+    console.log(range[0],range[1]);
+    return that.views.arr8.subarray(range[0],range[1]+1);
+  }
   // Setting specific block range in a piece
   // Parameters :
   // pieceIndex - index of piece
@@ -212,8 +231,16 @@ var thorFile = function(){
     this.views.arr8.set( Blocks , range[0] );
     return true;
   }
-  this.checkPieceIntegrity = function( pieceIndex )
-  {
+  this.checkPieceIntegrity = function( pieceIndex ){
+    var iH = null;
+    // find infoHashs
+    var piece = getPieceNoVal( pieceIndex )
+    log.INFO("checking integrity for piece "+pieceIndex)
+    iH = crypto.createHash('sha1').update(piece).digest('hex')
+
+    // add it to list
+    // TODO : remove this once stable
+    window.infoHashList[ pieceIndex ] = iH;
     this.setHavePiece(pieceIndex);
     return true;
   }
@@ -226,11 +253,14 @@ var thorFile = function(){
   // numBlocksSet - number of blocks
   var getArrayOffsets = function( pieceIndex , blockIndex , numBlocksReq ){
     console.log(pieceIndex,blockIndex,numBlocksReq);
-    var pieceOffset = pieceIndex*that.pieceLength;
+    var pieceOffset =  pieceIndex * that.pieceLength;
 
     var startOffset;
     var endOffset;
-    if( blockIndex < 0 || pieceIndex < 0 || numBlocksReq <= 0 || pieceIndex > (that.numPieces -1) )
+    if( blockIndex < 0 ||
+        pieceIndex < 0 ||
+        numBlocksReq <= 0 ||
+        pieceIndex > (that.numPieces -1) )
     return null;
 
     // If it is the last piece
