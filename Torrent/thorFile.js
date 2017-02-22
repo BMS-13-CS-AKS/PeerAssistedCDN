@@ -1,5 +1,6 @@
 var crypto = require('crypto-browserify')
 var log = require('../util/log.js')
+var fileUtils  = require('../util/fileUtils.js')
 // TODO : remove this once stable
 window.infoHashList = []
 var thorFile = function(){
@@ -149,7 +150,8 @@ var thorFile = function(){
   // This file calculates information on the file
   // The size of the file needs to be known before hand
   this.calculateDetails = function(){
-
+    fileUtils.getDetailsFromSize( this );
+    /*
     if(this.size < 268435456)
     {
       this.pieceLength = 262144;
@@ -178,6 +180,7 @@ var thorFile = function(){
     {
       this.lastBlockSize = this.defaultBlockSize
     }
+    */
   }
   // Return a specific block if we have it
   // Parameters :
