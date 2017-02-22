@@ -1,0 +1,16 @@
+{
+  "name": "infohash-creator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "file-to-meta.js",
+  "dependencies": {
+    "concat-stream": "^1.6.0",
+    "fixed-size-chunk-hashing": "^1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
