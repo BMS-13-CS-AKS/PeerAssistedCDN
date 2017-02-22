@@ -53,9 +53,6 @@ var createMeta = function () {
     })
   })
 }
-var onDone = function() {
-
-}
 if ( require.main === module ) {
   createMeta()
 }

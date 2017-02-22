@@ -9,7 +9,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node file-to-meta.js -i ../site/test_images -o ../site/metainfo"
   },
   "author": "",
   "license": "ISC"
