@@ -8,7 +8,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "node signaling.js"
+    "start" : "node signaling_new.js"
   },
   "repository": {
     "type": "git",
