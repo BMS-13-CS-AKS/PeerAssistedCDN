@@ -8,13 +8,17 @@ Extending the traditional centralised content delivery used in websites with a p
 ## Installation
 
 Make sure node.js is installed
+Install browserify globally
+```sh
+  $ npm install -g browserify
+```
 Note : These instructions are only for hosting the test site.
 
 #### Run the signaling server:
 
 In a new terminal:
 
-```bash
+```sh
 cd [pathtorepos]/PeerAssistedCDN/server
 npm install # Need not be done if already installed deps
 node signaling.js
@@ -23,16 +27,19 @@ node signaling.js
 #### To host the example site:
 
 In a new terminal
+Update the asgard.js file ( Should be done for every change to Torrent ):
+```sh
+npm build
+```
+Make sure node-static is installed: 
 
-Make sure node-static is installed:
-
-```bash
+```sh
 npm install -g node-static # Need not be one of already installed
 ```
 
 host the files:
 
-```bash
+```sh
 cd [pathtorepos]/PeerAssistedCDN/site
 static -a 0.0.0.0
 ```
