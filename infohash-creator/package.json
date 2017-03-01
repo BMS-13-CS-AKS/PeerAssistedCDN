@@ -5,7 +5,12 @@
   "main": "file-to-meta.js",
   "dependencies": {
     "concat-stream": "^1.6.0",
-    "fixed-size-chunk-hashing": "^1.0.0"
+    "ecstatic": "^2.1.0",
+    "fixed-size-chunk-hashing": "^1.0.0",
+    "hyperstream": "^1.2.2",
+    "hyperx": "^2.0.5",
+    "series": "^0.3.3",
+    "virtual-dom": "^2.1.1"
   },
   "devDependencies": {},
   "scripts": {
