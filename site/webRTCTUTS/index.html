@@ -1,0 +1,35 @@
+<html>
+<head>
+  <style>
+    div{
+    height:30px;
+    display: block;
+    margin-bottom: 10px;
+    }
+    div > *{
+      height:100%;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <input id="user" type="text"/>
+    <button id="userbutton">Login</button>
+  </div>
+  <div>
+    <input id="peer" type="text"/>
+    <button id="peerbutton">Peer</button>
+  </div>
+  <div>
+    <input id="message" type="text"/>
+    <button id="sendbutton">Send</button>
+  </div>
+  <div>
+    <p id="rcv">Here text will show</p>
+  </div>
+  <script src="../scripts/adapter-latest.js"></script>
+  <script src="client.js"></script>
+  <a href="../testsite/index.html">Click Here To Try Out The New Page</a>
+</body>
+</html>
