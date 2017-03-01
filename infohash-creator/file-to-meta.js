@@ -4,8 +4,8 @@ var crypto = require('crypto')
 var hasher = require('fixed-size-chunk-hashing')
 var fileUtils = require('../util/fileUtils.js')
 
-//var fileName =  process.argv[2]
 
+//creates metainfo from name of the file
 var outputMeta = function (fileName , callback) {
   var stats = fs.statSync(fileName)
   var fileInfo = {
@@ -16,7 +16,6 @@ var outputMeta = function (fileName , callback) {
   fileUtils.getDetailsFromSize(fileInfo)
   var CHUNK_SIZE = fileInfo.pieceLength
 
-  console.log("SAdsadad");
   file.pipe(hasher(CHUNK_SIZE,{hash: 'sha1'}, function (err, hashes) {
     if (err) throw err
 
@@ -35,27 +34,40 @@ var outputMeta = function (fileName , callback) {
   }))
 
 }
-var createMeta = function () {
+
+//if running using node (Example: node thisprogram.js) 
+if ( require.main === module ) {
+  // createMeta function called
+  createMeta()
+}
+//if required as a module
+else {
+  module.exports = outputMeta
+}
+
+
+//function that uses outputMeta function defined above
+//Does three things:
+//create k
+function createMeta() {
   var argv = require('minimist')(process.argv.slice(2))
 
+  // can call program as node program.js -o argument1 -i argument2
   var odirectory = argv.o
   var idirectory = argv.i
+
   fs.readdir(idirectory, function (err, files) {
     files.forEach(function (file) {
-      var writeToFile = function( filename , outputJSON ){
+      //console.log(file)
+      outputMeta(path.join(idirectory,file),writeToFile )
+
+      function writeToFile( filename , outputJSON ){
+        console.log(file, " ====", filename)
         var oFileName = path.join(odirectory, file.split('.')[0]+'.json')
         var outputFile = fs.createWriteStream(oFileName)
         console.log(outputJSON)
         outputFile.end(JSON.stringify(outputJSON))
       }
-      //console.log(file)
-      outputMeta(path.join(idirectory,file),writeToFile )
     })
   })
-}
-if ( require.main === module ) {
-  createMeta()
-}
-else {
-  module.exports = outputMeta
 }
