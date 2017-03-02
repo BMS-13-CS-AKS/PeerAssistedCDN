@@ -1,4 +1,4 @@
-# insert-imagetags
+# insert-images
 
 reads image from the the folder given as argument and serves those images
 
