@@ -21,13 +21,16 @@ var server = http.createServer( function (req, res) {
         tags.push(imgSrc)
       })
       console.log(tags.length)
+      
+      //templating using hyperstream
       fs.createReadStream('./index.html')
         .pipe(hyperstream({
           '#container': tags.join('\n')
         }))
         .pipe(res)
-      //res.write(tags.length+'\n')
-      //res.end()
+        .on('end', function() {
+          res.end()
+        })
     })
   }
   else {
