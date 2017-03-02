@@ -1,4 +1,8 @@
 var fs = require('fs')
+var vdom = require('virtual-dom')
+var createElement = require('virtual-dom/create-element')
+var hyperx = require('hyperx')
+var hx = hyperx(vdom.h)
 var path = require('path')
 var http = require('http')
 var hyperstream = require('hyperstream')
@@ -19,14 +23,14 @@ var server = http.createServer( function (req, res) {
       .pipe(res)
   }
   else if (req.url === '/') {
-    var prefix = (process.argv[3] === undefined) ? '': process.argv[3] + '-'
     fs.readdir(process.argv[2], function (err, files) {
       //creates image tag out of each file name
       files.forEach(function (fileName) {
         var myPath = path.join(process.argv[2],fileName)
         myPath = './'+ myPath
-        var imgSrc = `<img ${prefix}src="${myPath}" alt="${fileName.split('.')[0]}" />`
-        tags.push(imgSrc)
+        var imgSrc = hx
+          `<img src="${myPath}" alt="${fileName.split('.')[0]}" />`
+        tags.push(createElement(imgSrc).toString())
       })
       res.write(tags.length+'\n')
       res.end()
