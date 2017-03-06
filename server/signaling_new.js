@@ -69,7 +69,7 @@ wss.on('connection', function(connection) {
     function onDefault() {
       sendTo(connection, {
         type: "error",
-        message: "Command not found: " + data.type
+        message: "Invalid message type: " + data.type
       });
     }
 
@@ -124,10 +124,19 @@ wss.on('connection', function(connection) {
     function onRequest() {
       var result = {}
       result.type = 'response'
-      for (i  = 0; i < data.infoHashes.length; i++) {
-        var infohash = data.infoHashes[i];
-        result.answer[infohash] = getPeers(infohash)
-        addPeer(infohash, data.name)
+      // Page wise mode
+      if(data.mode == 1)
+      {
+        result.answer[infoHash] = getPeers(infoHash);
+        addPeer(infoHash, connection.name);
+      }
+      else
+      {
+        for (i  = 0; i < data.infoHashes.length; i++) {
+          var infohash = data.infoHashes[i];
+          result.answer[infohash] = getPeers(infohash);
+          addPeer(infohash, connection.name);
+        }
       }
       sendTo(connection, result);
     }
@@ -151,7 +160,7 @@ wss.on('connection', function(connection) {
     function onSeed() {
       for (i  = 0; i < data.infoHashes.length; i++) {
         var infohash = data.infoHashes[i];
-        addPeer(infohash, data.name)
+        addPeer(infohash, connection.name)
       }
     }
 
@@ -168,7 +177,8 @@ wss.on('connection', function(connection) {
     connection.send(JSON.stringify(message));
   }
 });
-// new peer
+
+// Add a new peer
 function addNewPeer(peer,connection){
   if(users[peer])
     return null;
@@ -176,23 +186,35 @@ function addNewPeer(peer,connection){
   users[peer] = { connection:connection ,infoHash:[] };
   return users[peer]
 }
-// adds peer to infohash
+
+// Adds peer to infohash
+// If infohash doesnt exist start tracking it
 function addPeer(infohash, peer) {
-  trackers[infoHash].push(peer);
-  users[peer].push(infohash);
+  if(!trackers[infohash])
+  {
+    trackers[infohash] = [];
+  }
+  if(trackers[infohash].indexOf(peer) < 0)
+  {
+    trackers[infoHash].push(peer);
+  }
+  if(users[peer].indexOf(infohash) < 0)
+  {
+    users[peer].push(infohash);
+  }
 }
 
-//get list of peers from infohash
+// Get list of peers from infohash
 function getPeers(infoHash) {
   return trackers[infoHash];
 }
 
-//adds infohash to tracker list
+// Adds infohash to tracker list
 function addInfohash(infoHash) {
   return;
 }
 
-//remove peer if it's dead
+// Remove peer if it's dead
 function removePeer(peer) {
 
 }

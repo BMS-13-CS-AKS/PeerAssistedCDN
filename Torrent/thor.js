@@ -10,7 +10,14 @@ var thor = function(address){
   var that = this;
   var thorFiles = {}; // dictionary of thorFiles
   var peerList = {};  // dictionary of peers
-
+  var mode = 0;  // 0 for pagewise , 1 for itemwise
+  var pageInfoHash = null; // page id
+  var pageComplete = 0; // whether page is completed or not
+  // Timer ids for central loops
+  var lastStatusLoop = null;
+  var lastControlLoop = null;
+  var statusInterval = 60;
+  var controlInterval = 30;
   // Should be removed ,added for debugging
   // exposes the peerlist and thorFiles dictionary
   this.pubpeers = peerList;
@@ -101,6 +108,12 @@ var thor = function(address){
     });
   }
 
+  // Used to set pagewise mode
+  this.setPageWise = function(infoHash){
+    pageInfoHash = infoHash;
+    mode = 1;
+  }
+
   // server responded after we sent login
   // TODO: In case of unsuccesfull login we might want to retry a given number of
   // times
@@ -108,14 +121,51 @@ var thor = function(address){
     if(success)
     {
       logger.INFO("Captured Username");
-      startControlLoop();
+      triggerStatusLoop(1);
+      triggerControlLoop(1);
+
     }
     else
     {
       logger.ERROR("Failed to capture username");
     }
   }
-
+  // For every file in file dictionary send a seed/request dict to the
+  // server.If pagewise send pagewise data also
+  var statusLoop = function(){
+    logger.DEBUG("Running status loop");
+    var req = { type:"status", infoHashes:[] ,mode: mode};
+    if (mode)
+    {
+      req.infoHashes.push([pageInfoHash, pageComplete]);
+    }
+    for (var file in thorFiles)
+    {
+      req.infoHashes.push([file, thorFiles[file].remainingpieces == 0]);
+    }
+    trackerServer.sendJSON(req);
+    triggerStatusLoop();
+  }
+  var controlLoop = function(){
+    logger.DEBUG("Running control loop");
+    triggerControlLoop();
+  }
+  var triggerStatusLoop = function(now = 0){
+    if(lastStatusLoop != null)
+      clearInterval(lastStatusLoop);
+    if ( !now )
+      lastStatusLoop = setTimeout(statusLoop, statusInterval*1000);
+    else
+      lastStatusLoop = setTimeout(statusLoop, 0);
+  }
+  var triggerControlLoop = function(now = 0){
+    if(lastControlLoop != null)
+      clearInterval(lastControlLoop);
+    if( !now )
+      lastControlLoop = setTimeout(controlLoop, controlInterval*1000);
+    else
+      lastControlLoop = setTimeout(controlLoop, 0);
+  }
   // How to react when we receive an offer from another client
   var onOffer = function(offer,name){
     if(!peerList[name])
