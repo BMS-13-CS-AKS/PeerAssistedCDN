@@ -6,22 +6,22 @@ var ecstatic = require('ecstatic')
 var st = ecstatic('.')
 
 //state of the program
-var server = http.createServer( function (req, res) { 
+var server = http.createServer( function (req, res) {
   // reads contents of directory provided from command line
 
   if (req.url === '/') {
-    var prefix = (process.argv[2] === undefined) ? '': process.argv[3] + '-'
+    var prefix = (process.argv[2] === undefined) ? '': process.argv[2] + '-'
     var tags = []
-    fs.readdir("input", function (err, files) {
+    fs.readdir("test_images", function (err, files) {
       //creates image tag out of each file name
       files.forEach(function (fileName) {
-        var myPath = path.join("input",fileName)
+        var myPath = path.join("test_images",fileName)
         myPath = './'+ myPath
         var imgSrc = `<img ${prefix}src="${myPath}" alt="${fileName.split('.')[0]}" />`
         tags.push(imgSrc)
       })
       console.log(tags.length)
-      
+
       //templating using hyperstream
       fs.createReadStream('./index.html')
         .pipe(hyperstream({

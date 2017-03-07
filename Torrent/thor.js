@@ -60,7 +60,7 @@ var thor = function(address){
       break;
       case 'candidate':onReceiveCandidate(data.candidate,data.name);
       break;
-      case 'response':onResponse();
+      case 'response':onResponse(data.answer);
       break;
       default:logger.ERROR("Could not parse:" + data);
     }
@@ -197,6 +197,12 @@ var thor = function(address){
     if(peerList[name]){
       peerList[name].remoteIceCandidate(candidate);
     }
+  }
+
+  // When we receive a response from the server after we send a request for
+  // the peer list
+  var onResponse = function(answer){
+    console.log(answer);
   }
   /***************************************************************************/
   // Extending the thorFile prototype

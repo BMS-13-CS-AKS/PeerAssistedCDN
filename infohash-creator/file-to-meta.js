@@ -63,7 +63,8 @@ function createMeta() {
 
       function writeToFile( filename , outputJSON ){
         console.log(file, " ====", filename)
-        var oFileName = path.join(odirectory, file.split('.')[0]+'.json')
+	var fNameArr = file.split('.').slice(0,-1).join('.')
+        var oFileName = path.join(odirectory, fNameArr + '.json')
         var outputFile = fs.createWriteStream(oFileName)
         console.log(outputJSON)
         outputFile.end(JSON.stringify(outputJSON))

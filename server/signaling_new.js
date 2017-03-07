@@ -52,7 +52,7 @@ wss.on('connection', function(connection) {
       onLeave()
       break;
 
-      case "request":
+      case "status":
       onRequest()
       break;
 
@@ -122,13 +122,14 @@ wss.on('connection', function(connection) {
     }
 
     function onRequest() {
-      var result = {}
-      result.type = 'response'
+      var result = {};
+      result.type = 'response';
+      result.answer = {};
       // Page wise mode
       if(data.mode == 1)
       {
-        result.answer[infoHash] = getPeers(infoHash);
-        addPeer(infoHash, connection.name);
+        result.answer[data.infoHashes[0][0]] = getPeers(data.infoHashes[0][0]);
+        addPeer(data.infoHashes[0][0], connection.name);
       }
       else
       {
@@ -196,16 +197,18 @@ function addPeer(infohash, peer) {
   }
   if(trackers[infohash].indexOf(peer) < 0)
   {
-    trackers[infoHash].push(peer);
+    trackers[infohash].push(peer);
   }
-  if(users[peer].indexOf(infohash) < 0)
+  if(users[peer].infoHash.indexOf(infohash) < 0)
   {
-    users[peer].push(infohash);
+    users[peer].infoHash.push(infohash);
   }
 }
 
 // Get list of peers from infohash
 function getPeers(infoHash) {
+  if(!trackers[infoHash])
+    return []
   return trackers[infoHash];
 }
 

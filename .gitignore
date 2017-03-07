@@ -1,4 +1,5 @@
 node_modules
 asgard.js
-metainfo
-test_images
+site/testsite1/test_images/
+site/testsite1/metainfo/
+.DS_store
