@@ -1,0 +1,12 @@
+{
+  "name": "rickysan",
+  "version": "0.0.1",
+  "description": "Distributing static content via p2p",
+  "main": "rickSanchez.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify rickSanchez.js -o ../site/scripts/rickSanchez_build.js"
+  },
+  "author": "Ashwin Kandel,Karan Uday Shanbhag,Suhail Muhammed",
+  "license": "MIT"
+}

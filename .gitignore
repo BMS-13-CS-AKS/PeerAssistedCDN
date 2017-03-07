@@ -1,5 +1,5 @@
 node_modules
-asgard.js
-site/testsite1/test_images/
-site/testsite1/metainfo/
+site/scripts/*_build.js
+test_images/
+metainfo/
 .DS_store

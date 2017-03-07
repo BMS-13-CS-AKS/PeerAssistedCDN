@@ -9,10 +9,10 @@ var st = ecstatic('.')
 var server = http.createServer( function (req, res) {
   // reads contents of directory provided from command line
 
-  if (req.url === '/') {
+  if (req.url === '/testsite1/') {
     var prefix = (process.argv[2] === undefined) ? '': process.argv[2] + '-'
     var tags = []
-    fs.readdir("test_images", function (err, files) {
+    fs.readdir("testsite1/test_images", function (err, files) {
       //creates image tag out of each file name
       files.forEach(function (fileName) {
         var myPath = path.join("test_images",fileName)
@@ -23,7 +23,7 @@ var server = http.createServer( function (req, res) {
       console.log(tags.length)
 
       //templating using hyperstream
-      fs.createReadStream('./index.html')
+      fs.createReadStream('testsite1/index.html')
         .pipe(hyperstream({
           '#container': tags.join('\n')
         }))
