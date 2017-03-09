@@ -44,6 +44,11 @@ var thorFile = function(){
   this.requestArray;
   this.requestArrayInt8;
 
+  // Availability Array
+  // Each byte represents number of peers having that piece
+  this.availArray;
+  this.availArrayInt8;
+
   // In case we already have the file as a file or blob object and would like to seed it
   // Parameters: file - file or blob object
   this.getFromBlob = function( file , infoHash){
@@ -53,14 +58,14 @@ var thorFile = function(){
     fileReader.onload = function(event){
       if((typeof this.result) != "string")
       {
-      par.file = this.result;
-      par.type = "blob";
-      par.file.complete = true;
-      par.views.arr8 = new Int8Array(par.file);
-      par.size = par.file.byteLength;
-      console.log("File retreived from blob and views set");
-      deriveInfo();
-      this.readAsDataURL(file);
+        par.file = this.result;
+        par.type = "blob";
+        par.file.complete = true;
+        par.views.arr8 = new Int8Array(par.file);
+        par.size = par.file.byteLength;
+        console.log("File retreived from blob and views set");
+        deriveInfo();
+        this.readAsDataURL(file);
       }
       else
       {
@@ -141,12 +146,31 @@ var thorFile = function(){
     this.haveArrayInt8 = new Int8Array(this.haveArray);
     this.requestArray = new ArrayBuffer(Math.ceil(this.numPieces/8));
     this.requestArrayInt8 = new Int8Array(this.requestArray);
+    this.availArray = new ArrayBuffer(this.numPieces);
+    this.availArrayInt8 = new Uint8Array(this.availArray);
     if(value){
       for(var i=0;i<this.numPieces;i++)
       this.haveArrayInt8[Math.floor(i/8)] |= 1<<(i%8);
     }
   }
 
+  // Function to update the Availability array
+  // Takes as input a bitfield
+  this.updateAvailability = function(bitfield){
+
+    for(var i=0;i<bitfield.byteLength;i++)
+    {
+      var t = bitfield[i];
+      var off = i*8;
+      while(t)
+      {
+        var t1 = t & ~(t-1);
+        var n = Math.log2(t1) + off;
+        this.availArrayInt8[n]++;
+        t = t & ~(t1);
+      }
+    }
+  }
   // This file calculates information on the file
   // The size of the file needs to be known before hand
   this.calculateDetails = function(){

@@ -1,5 +1,6 @@
 var peerChannel = require("./peerChannel.js");
 var thorFile = require("./thorFile.js")
+var superPeer = require("./superPeer.js")
 var logger = require("../util/log.js")
 // TODO : Properly hide all functions
 // Thor
@@ -8,6 +9,7 @@ var logger = require("../util/log.js")
 var thor = function(address){
 
   var that = this;
+
   var thorFiles = {}; // dictionary of thorFiles
   var peerList = {};  // dictionary of peers
   var mode = 0;  // 0 for pagewise , 1 for itemwise
@@ -123,7 +125,6 @@ var thor = function(address){
       logger.INFO("Captured Username");
       triggerStatusLoop(1);
       triggerControlLoop(1);
-
     }
     else
     {
@@ -198,12 +199,23 @@ var thor = function(address){
       peerList[name].remoteIceCandidate(candidate);
     }
   }
-
   // When we receive a response from the server after we send a request for
   // the peer list
   var onResponse = function(answer){
     console.log(answer);
   }
+  /***************************************************************************/
+  // Extending the superPeer
+  var startSuper = function(){
+
+  }
+  superPeer.prototype.onPiece = function(pieceString,file,pieceIndex){
+
+  }
+  superPeer.prototype.getNewPiece = function(){
+
+  }
+  /***************************************************************************/
   /***************************************************************************/
   // Extending the thorFile prototype
 
@@ -328,6 +340,7 @@ var thor = function(address){
         break;
       }
       var bitfield = new Uint8Array(message,offset+20,thorFiles[infoHash].haveArray.byteLength);
+      thorFiles[infoHash].updateAvailability(bitfield);
       for(var i = 0;i<bitfield.length;i++)
       {
           bitfield[i] = bitfield[i] & ~(thorFiles[infoHash].haveArrayInt8[i]);
@@ -341,6 +354,10 @@ var thor = function(address){
       offset += some;
     }
     this.introduced = 2;
+    if(startSuper)
+    {
+      startSuper();
+    }
     this.triggerThink();
   };
 
@@ -587,13 +604,13 @@ var thor = function(address){
       var ind = this.requestList.requested.indexOf(blockIndex);
       if((ind != -1) && val)
       {
-      this.requestList.requested.splice(ind,1);
-      window.blocks = blocks;
-      if(this.requestList.file.setBlocks(pieceIndex, blockIndex, numBlocks, blocks))
-      logger.INFO("set"+pieceIndex+blockIndex);
-      else
-      logger.WARN("Could not set");
-      this.triggerThink();
+        this.requestList.requested.splice(ind,1);
+        window.blocks = blocks;
+        if(this.requestList.file.setBlocks(pieceIndex, blockIndex, numBlocks, blocks))
+          logger.INFO("set"+pieceIndex+blockIndex);
+        else
+          logger.WARN("Could not set");
+        this.triggerThink();
       }
     }
   }
