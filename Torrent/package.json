@@ -10,7 +10,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify thor.js -o ../site/scripts/asgard.js"
+    "build": "browserify thor.js -o ../site/scripts/asgard_build.js"
   },
   "author": "Suhail Muhamemd,Ashwin Kandel,Karan Uday Shanbhag",
   "license": "MIT"

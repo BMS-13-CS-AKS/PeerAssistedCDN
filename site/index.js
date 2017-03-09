@@ -12,7 +12,7 @@ var server = http.createServer( function (req, res) {
   if (req.url === '/testsite1/') {
     var prefix = (process.argv[2] === undefined) ? '': process.argv[2] + '-'
     var tags = []
-    fs.readdir("testsite1/test_images", function (err, files) {
+    fs.readdir("test_images", function (err, files) {
       //creates image tag out of each file name
       files.forEach(function (fileName) {
         var myPath = path.join("test_images",fileName)

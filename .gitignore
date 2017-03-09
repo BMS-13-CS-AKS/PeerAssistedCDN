@@ -1,5 +1,5 @@
 node_modules
 site/scripts/*_build.js
 test_images/
-metainfo/
+metaInfo/
 .DS_store
