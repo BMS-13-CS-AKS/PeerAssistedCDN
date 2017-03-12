@@ -1,4 +1,4 @@
-
+var randPerm = require('../util/random.js')
 // require our websocket library
 var WebSocketServer = require('ws').Server;
 // creating a websocket server at port 9090
@@ -205,11 +205,39 @@ function addPeer(infohash, peer) {
   }
 }
 
+/*TODO : i have sent all peers (which include me also)
+         how do i fix above without breaking getPeers(infoHash) API
+         so i wanted that thing to be handled in client
+*/
+
 // Get list of peers from infohash
 function getPeers(infoHash) {
-  if(!trackers[infoHash])
+  if (!trackers[infoHash])
     return []
-  return trackers[infoHash];
+  //total no. of peers available
+  var count = trackers[infoHash].length
+
+  // if no of peers is less than 10 then return all peers
+  var result  = [] //stores final value 
+
+  //randPerm(n) returns array with value 0 to n shuffled randomly
+  var permTable = randomPerm(count) 
+
+  //sends all peers if count is less than 10
+  if (count < 10) {
+    permTable.forEach(function (val) {
+      result.push(trackers[infoHash][val])
+    })
+    return result
+  }
+  else {
+    //selecting and sending 10 random peers
+    slectedPerm = permTable.slice(0, 10)
+    slectedPerm.forEach(function (val) {
+      result.push(trackers[infoHash][val])
+    })
+    return result
+  }
 }
 
 // Adds infohash to tracker list
