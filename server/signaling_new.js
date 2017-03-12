@@ -128,7 +128,12 @@ wss.on('connection', function(connection) {
       // Page wise mode
       if(data.mode == 1)
       {
-        result.answer[data.infoHashes[0][0]] = getPeers(data.infoHashes[0][0]);
+        var reqInfoHash= data.infoHashes[0][0]
+        var resultPeers = getPeers(reqInfoHash)
+        var myIndex = resultPeers.indexOf(connection.name)
+        if (myIndex !== -1)
+          resultPeers.splice(myIndex, 1)
+        result.answer[data.infoHashes[0][0]] = resultPeers;
         addPeer(data.infoHashes[0][0], connection.name);
       }
       else
