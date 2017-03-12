@@ -9,7 +9,7 @@ var logger = require("../util/log.js")
 var thor = function(address){
 
   var that = this;
-
+  var morty;
   var thorFiles = {}; // dictionary of thorFiles
   var peerList = {};  // dictionary of peers
   var mode = 0;  // 0 for pagewise , 1 for itemwise
@@ -82,6 +82,7 @@ var thor = function(address){
         that.name = randomUserName();
       }
       login();
+      setTimeout(startSuper, 500);
     }
 
   }
@@ -210,37 +211,51 @@ var thor = function(address){
   // When we receive a response from the server after we send a request for
   // the peer list
   var onResponse = function(answer){
-    console.log(answer);
+    logger.DEBUG(answer);
   }
   /***************************************************************************/
   // Extending the superPeer
   var startSuper = function(){
-
+    logger.DEBUG("starting super")
+   morty = new superPeer();
+   morty.triggerThink();
   }
-  superPeer.prototype.onPiece = function(pieceString,file,pieceIndex){
-
+  superPeer.prototype.onPiece = function(pieceArray,file,pieceIndex){
+    file.setPiece(pieceIndex, pieceArray);
+    return file.checkPieceIntegrity(pieceIndex);
   }
+
+  // This function returns an array of three:
+  // Thorfile object
+  // pieceIndex
+  // (startOff, endOff) of that piece
   superPeer.prototype.getNewPiece = function(){
-    var min = 255;
+    var min = 300;
     var minRes = null;
     var fileRes = null;
     for(var infoHash in thorFiles)
     {
-      var res = thorFiles[file].chooseRarestPiece();
+      // chooseRarestPiece returns three elements
+      // index of rarest piece
+      // (startOff, endOff ) of piece
+      // availability of that piece
+      var res = thorFiles[infoHash].chooseRarestPiece();
       if( res == null )
+      {
         continue;
+      }
       if(res[2] < min)
       {
         min = res[2];
         minRes = res;
-        fileRes = thorFiles[file];
+        fileRes = thorFiles[infoHash];
       }
     }
-    if( min == 255)
+    if( min == 300)
     {
       return null;
     }
-    return [thorFiles[infoHash], res[0], res[1]];
+    return [fileRes, minRes[0], minRes[1]];
   }
 
   /***************************************************************************/
@@ -699,7 +714,9 @@ var thor = function(address){
 // This function is called when we have successfully loaded a file
 thor.prototype.onload = function(event)
 {
-  logger.INFO(event);
+
+  logger.INFO(event.infoHash + ' has been downloaded');
 }
 
 window.thor = thor;
+module.exports = thor

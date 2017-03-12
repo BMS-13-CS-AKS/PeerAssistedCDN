@@ -4,7 +4,7 @@ var http = require('http')
 var hyperstream = require('hyperstream')
 var ecstatic = require('ecstatic')
 var st = ecstatic('.')
-
+var logger = require("../util/log.js")
 //state of the program
 var server = http.createServer( function (req, res) {
   // reads contents of directory provided from command line
@@ -15,7 +15,7 @@ var server = http.createServer( function (req, res) {
     fs.readdir("test_images", function (err, files) {
       //creates image tag out of each file name
       files.forEach(function (fileName) {
-        var myPath = path.join("test_images",fileName)
+        var myPath = path.join("../test_images",fileName)
         myPath = './'+ myPath
         var imgSrc = `<img ${prefix}src="${myPath}" alt="${fileName.split('.')[0]}" />`
         tags.push(imgSrc)

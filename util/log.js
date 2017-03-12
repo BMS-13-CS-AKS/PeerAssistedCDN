@@ -4,16 +4,20 @@ else
 isBrowser = false
 logger = {}
 logger.INFO = function (message){
-  printColor("INFO:",message,"green");
+  message = message;
+  printColor(arguments.callee.caller.name + "\tINFO:",message,"green");
 }
 logger.DEBUG = function (message){
-  printColor("DEBUG:",message,"blue");
+  message = message;
+  printColor(arguments.callee.caller.name + " \tDEBUG:",message,"blue");
 }
 logger.ERROR = function (message){
-  printColor("ERROR:",message,"red");
+  message = message;
+  printColor(arguments.callee.caller.name + " \tERROR:",message,"red");
 }
 logger.WARN = function (message){
-  printColor("WARN:",message,"magenta");
+  message = message;
+  printColor(arguments.callee.caller.name + " \tWARN:",message,"magenta");
 }
 function printColor(head, msg, color){
   if(!isBrowser)

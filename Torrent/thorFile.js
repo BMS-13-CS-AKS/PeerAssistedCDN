@@ -53,7 +53,6 @@ var thorFile = function(){
   // Parameters: file - file or blob object
   this.getFromBlob = function( file , infoHash){
     var fileReader = new FileReader();
-    console.log(file);
     var par = this;
     fileReader.onload = function(event){
       if((typeof this.result) != "string")
@@ -177,8 +176,10 @@ var thorFile = function(){
   }
 
   // Function to find the rarest free piece
-  // Returns index of rarest piece
-  // Returns -1 if no piece
+  // Returns array: index of rarest piece
+  //                (startOff, endOff) of piece
+  //                availability of that piece
+  // returns null if no piece
   this.chooseRarestPiece = function(){
     var minInd = -1;
     var min = 255;
@@ -252,7 +253,6 @@ var thorFile = function(){
     var range = getArrayOffsets( pieceIndex , blockIndex , numBlocksReq );
     if(range == null)
     return null;
-    console.log(range[0],range[1]);
     return this.views.arr8.subarray(range[0],range[1]+1);
 
   }
@@ -269,7 +269,6 @@ var thorFile = function(){
       log.ERROR("Could not get piece"+pieceIndex);
       return null;
     }
-    console.log(range[0],range[1]);
     return that.views.arr8.subarray(range[0],range[1]+1);
   }
 
@@ -280,8 +279,6 @@ var thorFile = function(){
     var lastPiece = that.numPieces - 1
     var numBlocks =
     (pieceIndex === lastPiece) ? that.lastBlockIndex + 1 : that.numBlocks;
-    log.DEBUG([that.lastBlockIndex,that.numBlocks].join());
-    log.INFO([lastPiece,numBlocks,pieceIndex].join());
     var range = getArrayOffsets( pieceIndex , 0, numBlocks );
     if(range == null)
     {
@@ -303,9 +300,15 @@ var thorFile = function(){
     var range = getArrayOffsets( pieceIndex , blockIndex , numBlocksSet );
     if(range == null || ( Blocks.byteLength != range[1] - range[0] + 1 ) )
     return null;
-
     this.views.arr8.set( Blocks , range[0] );
     return true;
+  }
+
+  this.setPiece = function( pieceIndex , blocks){
+    var lastPiece = that.numPieces - 1
+    var numBlocks =
+    (pieceIndex === lastPiece) ? that.lastBlockIndex + 1 : that.numBlocks;
+    this.setBlocks( pieceIndex , 0 ,numBlocks,blocks)
   }
   this.checkPieceIntegrity = function( pieceIndex ){
     var iH = null;
@@ -328,7 +331,6 @@ var thorFile = function(){
   // blockIndex - index of block inside the piece
   // numBlocksSet - number of blocks
   var getArrayOffsets = function( pieceIndex , blockIndex , numBlocksReq ){
-    console.log(pieceIndex,blockIndex,numBlocksReq);
     var pieceOffset =  pieceIndex * that.pieceLength;
 
     var startOffset;
@@ -356,14 +358,11 @@ var thorFile = function(){
     }
     else
     {
-      console.log("here");
       if( (blockIndex + numBlocksReq - 1) > that.numBlocks -1 )
       return null;
-      console.log("here");
       startOffset = pieceOffset + blockIndex*that.defaultBlockSize;
       endOffset = pieceOffset + (blockIndex + numBlocksReq )*that.defaultBlockSize -1;
     }
-    console.log(startOffset);
     return [startOffset,endOffset];
   }
 

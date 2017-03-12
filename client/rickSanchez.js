@@ -1,12 +1,11 @@
 var logger = require("../util/log.js");
-var Thor = require("../Torrent/thor.js");
+var thor = require("../Torrent/thor.js");
 
 // Our Man-of-The hour. Function to do anything and everything.
 window.rickySan = function(){
 
   var staticFiles = {}; // infoHash dictionary
   var num_files_remaining; // num of files left to retrieve metainfo
-  var thor = new Thor()
   // TODO : remove this once done
   window.staticFiles = staticFiles
 
@@ -16,12 +15,23 @@ window.rickySan = function(){
     var imgelements= document.getElementsByTagName('img');
     return imgelements;
   }
-
+  var onDownload = function(event){
+    var infoHash = event.infoHash;
+    if(!staticFiles[infoHash])
+    {
+      log.ERROR("Invalid File");
+    }
+    staticFiles[infoHash].element.src = event.event.result;
+  }
   var onComplete = function(){
+    var a = new thor("ws://127.0.0.1:9090");
+    window.a = a;
     for(var infoHash in staticFiles)
     {
-
+      a.addFileToDownload(staticFiles[infoHash].metainfo);
     }
+    a.onload = onDownload;
+    a.start();
   }
   // this function takes in the file name and uses it to make
   // a server request to get the respetive metafile (json file)

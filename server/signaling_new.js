@@ -226,7 +226,7 @@ function getPeers(infoHash) {
   var result  = [] //stores final value 
 
   //randPerm(n) returns array with value 0 to n shuffled randomly
-  var permTable = randomPerm(count) 
+  var permTable = randPerm(count) 
 
   //sends all peers if count is less than 10
   if (count < 10) {
