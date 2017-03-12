@@ -41,14 +41,13 @@ var thor = function(address){
   }
 
   // creating a new websocket connection to the ST server
-  // TODO: This must be put inside a function
   // NOTE: I might use ST and trackerServer terms.Both are the same
-  var trackerServer = new WebSocket(this.address);
+  var trackerServer;
 
   // How to respond when we get a message from the ST server
   // TODO: only signaling done here. Must also add logic when we receive peer
   // lists etc.
-  trackerServer.onmessage = function(message){
+  var onmessage = function(message){
 
     //Parse the message to get the JS object
     data = JSON.parse(message.data);
@@ -69,13 +68,22 @@ var thor = function(address){
 
   }
 
-  // Capture a username and login
+  // Start thor
+  // This will:
+  // start the tracker server
+  // on connection will login
   this.start = function(){
-    if(!this.name)
-    {
-      this.name = randomUserName();
+
+    trackerServer = new WebSocket(this.address);
+    trackerServer.onmessage = onmessage;
+    trackerServer.onopen = function(){
+      if(!that.name)
+      {
+        that.name = randomUserName();
+      }
+      login();
     }
-    login();
+
   }
 
   // Connect to a particular peer
@@ -213,8 +221,28 @@ var thor = function(address){
 
   }
   superPeer.prototype.getNewPiece = function(){
-
+    var min = 255;
+    var minRes = null;
+    var fileRes = null;
+    for(var infoHash in thorFiles)
+    {
+      var res = thorFiles[file].chooseRarestPiece();
+      if( res == null )
+        continue;
+      if(res[2] < min)
+      {
+        min = res[2];
+        minRes = res;
+        fileRes = thorFiles[file];
+      }
+    }
+    if( min == 255)
+    {
+      return null;
+    }
+    return [thorFiles[infoHash], res[0], res[1]];
   }
+
   /***************************************************************************/
   /***************************************************************************/
   // Extending the thorFile prototype
@@ -354,10 +382,6 @@ var thor = function(address){
       offset += some;
     }
     this.introduced = 2;
-    if(startSuper)
-    {
-      startSuper();
-    }
     this.triggerThink();
   };
 
@@ -656,6 +680,7 @@ var thor = function(address){
     thorFiles[infoHash].getFromBlob(blob,infoHash);
     logger.INFO("Seeded thor file");
   }
+
   // To add file to download list
   // TODO:Right now this function must be called before connecting to peers
   // We should write it so that we can add files even after we are already

@@ -1,9 +1,12 @@
 var logger = require("../util/log.js");
+var Thor = require("../Torrent/thor.js");
+
 // Our Man-of-The hour. Function to do anything and everything.
 window.rickySan = function(){
 
   var staticFiles = {}; // infoHash dictionary
   var num_files_remaining; // num of files left to retrieve metainfo
+  var thor = new Thor()
   // TODO : remove this once done
   window.staticFiles = staticFiles
 
@@ -17,7 +20,7 @@ window.rickySan = function(){
   var onComplete = function(){
     for(var infoHash in staticFiles)
     {
-      console.log(staticFiles[infoHash]);
+
     }
   }
   // this function takes in the file name and uses it to make
@@ -40,6 +43,16 @@ window.rickySan = function(){
      if(xmlhttp.readyState==4 && xmlhttp.status==200){
        {
          var x = JSON.parse(xmlhttp.responseText);
+         // Add other attributes to metaInfo
+         if(imelem.tagName == 'IMG')
+         {
+          x.type = "blob";
+         }
+         else
+         {
+          x.type = "stream";
+         }
+         x.url = imelem.data_src;
          staticFiles[x.infoHash]= { "element": imelem, "metainfo": x};
          // TODO : add error handling if we don't receive valid metainfo
          logger.DEBUG(xmlhttp.responseText)

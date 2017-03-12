@@ -80,12 +80,16 @@ var thorFile = function(){
   }
   this.getFromInfo = function( metaInfo ){
 
+    // Extract from metaInfo
     this.size = metaInfo.size;
     setInfoHash(metaInfo.infoHash);
+    this.url = metaInfo.url;
+    this.type = metaInfo.type;
+
+    // Derive the other attributes
     this.calculateDetails();
     this.file = new ArrayBuffer(this.size);
     this.views.arr8 =new Int8Array(this.size);
-    this.type = metaInfo.type;
     this.createPiecesArray();
 
   }
@@ -171,6 +175,33 @@ var thorFile = function(){
       }
     }
   }
+
+  // Function to find the rarest free piece
+  // Returns index of rarest piece
+  // Returns -1 if no piece
+  this.chooseRarestPiece = function(){
+    var minInd = -1;
+    var min = 255;
+    for(var i=0;i<this.haveArrayInt8.byteLength;i++)
+    {
+      var t = (~(this.haveArrayInt8[i])) & (~(this.requestArrayInt8[i]));
+      var off = i*8;
+      while(t)
+      {
+        var t1 = t & ~(t-1);
+        var n  = Math.log2(t1) + off;
+        if(this.availArrayInt8[n] < min)
+        {
+          min = this.availArrayInt8[n];
+          minInd = n;
+        }
+        t = t & ~(t1);
+      }
+    }
+    if (minInd == -1)
+      return null;
+    return [minInd, getPieceOffset(minInd), min];
+  }
   // This file calculates information on the file
   // The size of the file needs to be known before hand
   this.calculateDetails = function(){
@@ -240,6 +271,24 @@ var thorFile = function(){
     }
     console.log(range[0],range[1]);
     return that.views.arr8.subarray(range[0],range[1]+1);
+  }
+
+  // Function to get the offset of a certain piece
+  // Pass as parameter the piece index
+  // Returns (startOff ,endOff ) list
+  var getPieceOffset = function(pieceIndex){
+    var lastPiece = that.numPieces - 1
+    var numBlocks =
+    (pieceIndex === lastPiece) ? that.lastBlockIndex + 1 : that.numBlocks;
+    log.DEBUG([that.lastBlockIndex,that.numBlocks].join());
+    log.INFO([lastPiece,numBlocks,pieceIndex].join());
+    var range = getArrayOffsets( pieceIndex , 0, numBlocks );
+    if(range == null)
+    {
+      log.ERROR("Could not get piece"+pieceIndex);
+      return null;
+    }
+    return range
   }
   // Setting specific block range in a piece
   // Parameters :
