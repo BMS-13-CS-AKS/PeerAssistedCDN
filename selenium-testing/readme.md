@@ -18,9 +18,15 @@
 
 ```sh
   $ npm install
-  $ node server.js server.local
-  $ node client.js client1 server.local
-  $ node client.js client2 server.local
+  
+  #create a server named server.local
+  $ node server.js server.local 
+  
+  #create a client named client1 and connect to server.local
+  $ node client.js client1 server.local 
+  
+  #create a client named client1 and connect to server.local
+  $ node client.js client2 server.local 
 ```
 
 Now, type commands in server's terminal and look at client's terminal 
