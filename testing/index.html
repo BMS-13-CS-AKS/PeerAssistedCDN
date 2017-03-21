@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test page</title>
+</head>
+<body>
+
+<p id="my-textbox">
+  Hello world haha
+</p>
+<script>
+var loaded = function()
+{
+  var el = document.createElement('p')
+	document.body.setAttribute("p id","loaded");
+  document.queryDocument('#loaded').textContent = 'random text'
+}
+function(){
+	var randomTime = Math.random()*5+5;
+	setTimeout(loaded)
+}()
+</script>
+</body>
+</html>

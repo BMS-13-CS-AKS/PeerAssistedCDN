@@ -26,15 +26,15 @@ var server = net.createServer(function(socket){
     socket.write(message)
   })
 
-  /*
   //reading response from client 
 	socket.on('data', function (data) {
+    console.log(data.result)
+    /*
     clients.forEach(function (client) {
-      //if (friend !== socket) 
       client.write(data)
     })
+    */
 	})
-  */
 })
 
 server.listen(8088)
