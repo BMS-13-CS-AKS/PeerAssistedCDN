@@ -22,7 +22,7 @@ var outputMeta = function (fileName , callback) {
     var id = crypto.createHash('sha1')
       .update(hashes.join('\n'))
       .digest()
-      .toString('hex')
+      .toString('utf16le')
 
     var outputJSON = {}
 
