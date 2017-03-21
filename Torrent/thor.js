@@ -12,7 +12,7 @@ var thor = function(address){
   var morty;
   var thorFiles = {}; // dictionary of thorFiles
   var peerList = {};  // dictionary of peers
-  var mode = 0;  // 0 for pagewise , 1 for itemwise
+  var mode = 0;  // 1 for pagewise , 0 for itemwise
   var pageInfoHash = null; // page id
   var pageComplete = 0; // whether page is completed or not
   // Timer ids for central loops
@@ -140,6 +140,7 @@ var thor = function(address){
       logger.ERROR("Failed to capture username");
     }
   }
+
   // For every file in file dictionary send a seed/request dict to the
   // server.If pagewise send pagewise data also
   var statusLoop = function(){
@@ -156,10 +157,12 @@ var thor = function(address){
     trackerServer.sendJSON(req);
     triggerStatusLoop();
   }
+
   var controlLoop = function(){
     logger.DEBUG("Running control loop");
     triggerControlLoop();
   }
+
   var triggerStatusLoop = function(now = 0){
     if(lastStatusLoop != null)
       clearInterval(lastStatusLoop);
@@ -168,6 +171,7 @@ var thor = function(address){
     else
       lastStatusLoop = setTimeout(statusLoop, 0);
   }
+
   var triggerControlLoop = function(now = 0){
     if(lastControlLoop != null)
       clearInterval(lastControlLoop);
@@ -176,6 +180,7 @@ var thor = function(address){
     else
       lastControlLoop = setTimeout(controlLoop, 0);
   }
+
   // How to react when we receive an offer from another client
   var onOffer = function(offer,name){
     if(!peerList[name])
@@ -235,6 +240,8 @@ var thor = function(address){
     var fileRes = null;
     for(var infoHash in thorFiles)
     {
+      if (!thorFiles[infoHash].url)
+        continue;
       // chooseRarestPiece returns three elements
       // index of rarest piece
       // (startOff, endOff ) of piece
@@ -268,8 +275,15 @@ var thor = function(address){
     var extEvent = { infoHash:this.infoHashStr ,event: event };
     that.onload(extEvent);
   }
-  thorFile.prototype.onHave = function(pieceIndex){
-
+  thorFile.prototype.onPieceComplete = function(pieceIndex){
+    logger.INFO("Sending have ")
+    if(mode == 1)
+    {
+      for(var peer in peerList)
+      {
+        peerList[peer].sendHave(this, pieceIndex);
+      }
+    }
   }
   /***************************************************************************/
   // Extending the peerChannel prototype
@@ -318,6 +332,12 @@ var thor = function(address){
     {
       logger.INFO("Received bitfield");
       this.onBitfield(message);
+    }
+    else
+    if(message.byteLength == 22)
+    {
+      logger.INFO("Received Have");
+      this.onHave(message);
     }
     else
     if(message.byteLength == 24)
@@ -552,8 +572,50 @@ var thor = function(address){
   // TODO
   peerChannel.prototype.sendHave = function ( file , pieceIndex ) {
 
+    var length = 22;
+    var message = new ArrayBuffer(length);
+    var infoHash = new Uint16Array(message,0,10);
+    var pieceIndex1 = new Uint16Array(message,20,1);
+
+    logger.INFO("Sending have message")
+    infoHash.set(file.infoHash);
+    pieceIndex1[0] = pieceIndex;
+    this.dataChannel.send( message );
   };
 
+  // On receiving have message
+  // Parameters:
+  // message - 22 byte array buffer
+  //           first 20 bytes will be infoHash
+  //           next 2 bytes will be piece Index
+  peerChannel.prototype.onHave = function( message ) {
+
+    var infoHash = new Uint16Array(message,0,10);
+    var pieceIndex = new Uint16Array(message,20,1)[0];
+
+    var infoHashStr = "";
+    for ( var i =0 ;i<10;i++)
+      infoHashStr += String.fromCharCode(infoHash[i]);
+
+    logger.INFO("Received have for "+pieceIndex);
+    var file = thorFiles[infoHashStr];
+    file.updateAvailPiece(pieceIndex);
+    this.setHave( infoHashStr, pieceIndex);
+    this.meInterested = true;
+    this.triggerThink();
+  };
+
+  peerChannel.prototype.setHave = function(infoHash, pieceIndex){
+
+    var arrIndex = Math.floor(pieceIndex/8);
+    var pieceOff = pieceIndex%8;
+    logger.DEBUG(arrIndex)
+    logger.DEBUG(pieceOff)
+    if(!this.theirFiles[infoHash])
+      return;
+    logger.DEBUG("Setting have");
+    this.theirFiles[infoHash][arrIndex] |= (1<<pieceOff);
+  }
   // Sending a request
   // Parameters
   // file - A thor file object

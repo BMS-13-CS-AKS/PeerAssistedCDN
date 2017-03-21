@@ -64,6 +64,7 @@ function onadd(event)
     }
     images[meta.infoHash] = addNewImage(meta.size,meta.infoHash);
     meta["type"] = "blob";
+    meta["url"] = ""
     a.addFileToDownload(meta);
   }
   catch(err)

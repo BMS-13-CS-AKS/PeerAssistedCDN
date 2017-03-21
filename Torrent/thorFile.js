@@ -100,6 +100,7 @@ var thorFile = function(){
     return;
     this.haveArrayInt8[Math.floor(index/8)] |= (1<<index%8);
     this.remainingPieces--;
+    this.onPieceComplete(index)
     if(!this.remainingPieces)
     {
       this.oncompletion();
@@ -175,6 +176,9 @@ var thorFile = function(){
     }
   }
 
+  this.updateAvailPiece = function(pieceIndex){
+    this.availArrayInt8[pieceIndex]++;
+  }
   // Function to find the rarest free piece
   // Returns array: index of rarest piece
   //                (startOff, endOff) of piece
@@ -372,5 +376,8 @@ thorFile.prototype.onload = function(event){
 }
 thorFile.prototype.toString = function(){
   return this.infoHashStr;
+}
+thorFile.prototype.onPieceComplete = function(pieceIndex){
+  return;
 }
 module.exports = thorFile;

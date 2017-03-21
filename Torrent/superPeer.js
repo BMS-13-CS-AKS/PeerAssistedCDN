@@ -13,7 +13,10 @@ var superPeer = function(){
     logger.INFO("Creating new super peer request")
     var newPiece = that.getNewPiece();
     if (!newPiece)
+    {
+      that.triggerThink(10);
       return;
+    }
     var req = new XMLHttpRequest();
     requestFree = false;
     req.onreadystatechange = function(){
@@ -54,12 +57,12 @@ var superPeer = function(){
 
   }
 
-  this.triggerThink = function(){
+  this.triggerThink = function(interval=0){
     logger.DEBUG("Super peer in thought")
     if(thinkTriggered)
     return;
     thinkTriggered = true;
-    setTimeout(think,0);
+    setTimeout(think,interval*1000);
   }
 
   var think = function(){
