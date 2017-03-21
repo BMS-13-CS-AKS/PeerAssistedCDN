@@ -5,20 +5,19 @@
 </head>
 <body>
 
-<p id="my-textbox">
-  Hello world haha
-</p>
 <script>
-var loaded = function()
-{
-  var el = document.createElement('p')
-	document.body.setAttribute("p id","loaded");
-  document.queryDocument('#loaded').textContent = 'random text'
-}
-function(){
-	var randomTime = Math.random()*5+5;
-	setTimeout(loaded)
-}()
+  function loaded () {
+    var el = document.createElement('p')
+    el.setAttribute("id", "loaded")
+    document.body.appendChild(el)
+    document.querySelector('#loaded').textContent = 'random text'
+  }
+
+  var randomTime = Math.random()*5 + 1000
+  setTimeout(function () {
+    loaded()
+  }, randomTime)
 </script>
+
 </body>
 </html>

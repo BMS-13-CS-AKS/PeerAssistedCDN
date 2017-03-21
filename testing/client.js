@@ -24,13 +24,17 @@ socket.on('data', function(data) {
   browsers.push(driver)
 
   driver.get('http://localhost:8000') 
-  driver.findElement({id: 'loaded'}).then (function (el) {
-    el.getText().then(function (string) {
-      console.log(string)
+
+  setTimeout(function () {
+    driver.findElement({id: 'loaded'}).then (function (el) {
+      el.getText().then(function (string) {
+        socket.write({result: string})
+        console.log(string)
+      })
+      //console.log(el)
+      //socket.write({result: el.getText()})
     })
-    //console.log(el)
-    //socket.write({result: el.getText()})
-  })
+  }, 2000)
 
   console.log('checking haha')
   var element = driver.wait(until.elementLocated(By.id('loaded'), 10000));
