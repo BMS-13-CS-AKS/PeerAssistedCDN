@@ -5,17 +5,38 @@ var screen = blessed.screen({
   smartCSR: true
 });
 screen.title = "Signaling Server";
-var str = "sas";
-for (var i=0;i<10000;i++)
-str+='sadasdsa';
+
 var infoBox = blessed.box({
   parent: screen,
   //padding: 2,
   scrollable: true,
   left: '0px',
-  top: '0px',
+  top: '2%',
   width: '48%',
-  height: '100%',
+  height: '47%',
+  content: "",
+  tags:true,
+  keys: true,
+  vi: true,
+  scrollbar: {
+    ch: ' ',
+    inverse: true
+  },
+  style: {
+    fg: 'black',
+    bg: 'white',
+    hover:{bg:"black",fg:"green"}
+  }
+});
+
+var userBox = blessed.box({
+  parent: screen,
+  //padding: 2,
+  scrollable: true,
+  left: '0px',
+  top: '50%',
+  width: '48%',
+  height: '50%',
   content: "",
   keys: true,
   vi: true,
@@ -25,10 +46,12 @@ var infoBox = blessed.box({
     inverse: true
   },
   style: {
-    fg: 'green',
-    bg: 'black',
+    fg: 'black',
+    bg: 'white',
+    hover:{bg:"black",fg:"green"}
   }
 });
+
 var logBox = blessed.Log({
   parent: screen,
   //padding: 2,
@@ -39,28 +62,31 @@ var logBox = blessed.Log({
   height: '100%',
   content: "",
   keys: true,
-  vi: true,
-  alwaysScroll: true,
+  alwaysScroll:true,
   scrollbar: {
     ch: ' ',
     inverse: true
   },
   style: {
-    fg: 'green',
-    bg: 'black',
-    border: {
-    fg: '#f0f0f0'
-  }}
+    fg: 'black',
+    bg: 'white',
+    hover:{bg:"black",fg:"green"}
+  }
 });
 
-screen.append(infoBox);
-screen.append(logBox);
 screen.render();
 // Quit on Escape, q, or Control-C.
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
   return process.exit(0);
 });
-console.log = function(message){ logBox.log(message);}
+console.log = function(){
+  message = "";
+  for(key in arguments)
+  {
+    message = message + arguments[key];
+  }
+  logBox.log(message);
+}
 /**********************************************/
 var randPerm = require('../util/random.js')
 // require our websocket library
@@ -289,10 +315,13 @@ function addPeer(infohash, peer) {
 function removePeer(name) {
   if(users[name])
   {
+    console.log("Removing peer",name,"from infoHashes")
     ihofPeer = users[name].infoHash
-    for(var iH in ihofPeer)
+
+    for(var ind in ihofPeer)
     {
-      removePeerFromInfoHash(iH, name);
+      console.log("Removing peer",name,"from",ihofPeer[ind])
+      removePeerFromInfoHash(ihofPeer[ind], name);
     }
     delete users[name]
   }
@@ -345,7 +374,17 @@ function addInfohash(infoHash) {
 }
 
 function showInfo(){
-  infoBox.setContent(JSON.stringify(trackers,null,2));
+  infoBoxHeader = "INFOHASH TO USERS MAP\n";
+  infoBoxHeader+= "---------------------\n";
+  userBoxHeader = "USERS MAP\n";
+  userBoxHeader+= "---------------------\n";
+  infoBox.setContent(infoBoxHeader+JSON.stringify(trackers,null,2));
+  var temp_d = {}
+  for(var user in users)
+  {
+    temp_d[user] = users[user].infoHash;
+  }
+  userBox.setContent(userBoxHeader+JSON.stringify(temp_d,null,2));
   screen.render();
 }
 
