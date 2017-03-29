@@ -5,14 +5,41 @@ var screen = blessed.screen({
   smartCSR: true
 });
 screen.title = "Signaling Server";
-
-var box = blessed.ScrollableBox({
-  top: '0px',
+var str = "sas";
+for (var i=0;i<10000;i++)
+str+='sadasdsa';
+var infoBox = blessed.box({
+  parent: screen,
+  //padding: 2,
+  scrollable: true,
   left: '0px',
-  width: '50%',
+  top: '0px',
+  width: '48%',
   height: '100%',
-  scrollbar:true,
-  content: str,
+  content: "",
+  keys: true,
+  vi: true,
+  alwaysScroll: true,
+  scrollbar: {
+    ch: ' ',
+    inverse: true
+  },
+  style: {
+    fg: 'green',
+    bg: 'black',
+  }
+});
+var logBox = blessed.Log({
+  parent: screen,
+  //padding: 2,
+  scrollable: true,
+  left: '51%',
+  top: '0px',
+  width: '48%',
+  height: '100%',
+  content: "",
+  keys: true,
+  vi: true,
   alwaysScroll: true,
   scrollbar: {
     ch: ' ',
@@ -22,18 +49,18 @@ var box = blessed.ScrollableBox({
     fg: 'green',
     bg: 'black',
     border: {
-      fg: '#f0f0f0'
-    }
-  }
+    fg: '#f0f0f0'
+  }}
 });
 
-screen.append(box);
-setInterval(function(){screen.render();box.scroll(1);},10);
+screen.append(infoBox);
+screen.append(logBox);
+screen.render();
 // Quit on Escape, q, or Control-C.
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
   return process.exit(0);
 });
-console.log = function(){}
+console.log = function(message){ logBox.log(message);}
 /**********************************************/
 var randPerm = require('../util/random.js')
 // require our websocket library
@@ -44,6 +71,7 @@ var wss = new WebSocketServer({port: 9090});
 // all connected to the server users
 var users = {};
 var trackers = {};
+console.log("server starting")
 // when new user connects to our sever
 wss.on('connection', function(connection) {
 
@@ -316,3 +344,9 @@ function addInfohash(infoHash) {
   return;
 }
 
+function showInfo(){
+  infoBox.setContent(JSON.stringify(trackers,null,2));
+  screen.render();
+}
+
+setInterval(showInfo,100);
