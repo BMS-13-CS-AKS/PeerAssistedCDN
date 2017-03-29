@@ -9,8 +9,11 @@ var thorFile = function(){
   this.file;
   this.views = {};
   this.type;
-  this.peerCount = 0;
-  this.serverCount = 0;
+  this.progress = {
+                    peerCount:0,
+                    serverCount:0,
+                    total:-1
+                  };
   // Information about the file
   this.infoHash = new Uint16Array(10);
   this.infoHashStr;
@@ -217,6 +220,7 @@ var thorFile = function(){
   // The size of the file needs to be known before hand
   this.calculateDetails = function(){
     fileUtils.getDetailsFromSize( this );
+    this.progress.total = this.numPieces;
     /*
     if(this.size < 268435456)
     {

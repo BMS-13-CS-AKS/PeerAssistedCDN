@@ -1,12 +1,13 @@
-var peerChannel = require("./peerChannel.js");
+var peerChannel = require("./peerChannel.js")
 var thorFile = require("./thorFile.js")
 var superPeer = require("./superPeer.js")
 var logger = require("../util/log.js")
+var rand = require("../util/random.js")
 // TODO : Properly hide all functions
 // Thor
 // parameters:
 // address - address of websocket connection
-var thor = function(address){
+var thor = function(address,enable_server){
 
   var that = this;
   var morty;
@@ -82,6 +83,7 @@ var thor = function(address){
         that.name = randomUserName();
       }
       login();
+      if(enable_server)
       setTimeout(startSuper, 500);
     }
 
@@ -242,7 +244,7 @@ var thor = function(address){
     res = file.checkPieceIntegrity(pieceIndex);
     if(res)
     {
-      file.serverCount++;
+      file.progress.serverCount++;
     }
     return res;
   }
@@ -471,7 +473,7 @@ var thor = function(address){
         res = this.requestList.file.checkPieceIntegrity(this.requestList.pieceIndex);
         if(res)
         {
-          this.requestList.file.peerCount++;
+          this.requestList.file.progress.peerCount++;
         }
       }
 
@@ -526,10 +528,21 @@ var thor = function(address){
   // - try checking the download queue
   // - if nothing again,then return null indicating no interest
   peerChannel.prototype.choosePiece = function(){
-    for(var key in this.theirFiles)
+
+    var randArray = rand(Object.keys(this.theirFiles).length);
+    logger.INFO(randArray.toString())
+    for(var i1=0;i1<randArray.length;i1++)
     {
-      for(var i=0;i<thorFiles[key].haveArrayInt8.length;i++)
+      logger.INFO(i1);
+      logger.INFO(randArray[i1]);
+      var key = Object.keys(this.theirFiles)[randArray[i1]];
+      logger.INFO(key);
+      var start = Math.floor(Math.random()*(thorFiles[key].haveArrayInt8.length+1));
+      for(var ind=0;ind<thorFiles[key].haveArrayInt8.length;ind++)
       {
+        logger.INFO(start)
+        var i = (start+ind)%thorFiles[key].haveArrayInt8.length;
+        logger.INFO("here we go "+i)
         var t = (~thorFiles[key].requestArrayInt8[i]) & (~thorFiles[key].haveArrayInt8[i]) & (this.theirFiles[key][i])
         if(t)
         {
@@ -796,8 +809,16 @@ var thor = function(address){
   //                                    size : 120000 // size in bytes
   //                                   }
   this.addFileToDownload = function(metaInfo ){
-    thorFiles[metaInfo.infoHash] = new thorFile();
-    thorFiles[metaInfo.infoHash].getFromInfo(metaInfo);
+    if(!thorFiles[metaInfo.infoHash])
+    {
+      thorFiles[metaInfo.infoHash] = new thorFile();
+      thorFiles[metaInfo.infoHash].getFromInfo(metaInfo);
+      return thorFiles[metaInfo.infoHash].progress;
+    }
+    else
+    {
+      return thorFiles[metaInfo.infoHash].progress;
+    }
   }
 }
 

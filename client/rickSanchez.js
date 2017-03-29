@@ -2,7 +2,7 @@ var logger = require("../util/log.js");
 var thor = require("../Torrent/thor.js");
 
 // Our Man-of-The hour. Function to do anything and everything.
-window.rickySan = function(){
+window.rickySan = function(enable_server= true,progress = true){
 
   var body = document.getElementsByTagName("body")[0]
   var page_hash = null;
@@ -12,9 +12,29 @@ window.rickySan = function(){
   }
   var staticFiles = {}; // infoHash dictionary
   var num_files_remaining; // num of files left to retrieve metainfo
+  var progressDicts = {};
   // TODO : remove this once done
   window.staticFiles = staticFiles
 
+  function updateProgress(){
+    for(var infoHash in progressDicts)
+    {
+      var total = progressDicts[infoHash].total;
+      var server = progressDicts[infoHash].serverCount;
+      var peer = progressDicts[infoHash].peerCount;
+
+      var pProg = total!=-1?(peer/total):0;
+      var sProg = total!=-1?(server/total):0;
+      logger.INFO(server/total)
+      logger.INFO(peer/total)
+      logger.INFO("Running progress "+infoHash+""+sProg+""+pProg);
+      for(var e in staticFiles[infoHash].element)
+      {
+        staticFiles[infoHash].element[e].progress.value = pProg;
+        staticFiles[infoHash].element[e].progress2.value = sProg;
+      }
+    }
+  }
   // Function to fetch static image elements from webpage
   function findImgTags() {
     var i=0;
@@ -27,19 +47,24 @@ window.rickySan = function(){
     {
       log.ERROR("Invalid File");
     }
-    staticFiles[infoHash].element.src = event.event.result;
+    for(var e in staticFiles[infoHash].element)
+    {
+      staticFiles[infoHash].element[e].src = event.event.result;
+    }
   }
   var onComplete = function(){
-    var a = new thor("ws://127.0.0.1:9090");
+    var a = new thor("ws://127.0.0.1:9090",enable_server);
     if(page_hash)
       a.setPageWise(page_hash)
     window.a = a;
     for(var infoHash in staticFiles)
     {
-      a.addFileToDownload(staticFiles[infoHash].metainfo);
+      var progressDict = a.addFileToDownload(staticFiles[infoHash].metainfo);
+      progressDicts[infoHash] = progressDict;
     }
     a.onload = onDownload;
     a.start();
+    setInterval(updateProgress,500);
   }
   // this function takes in the file name and uses it to make
   // a server request to get the respetive metafile (json file)
@@ -71,7 +96,10 @@ window.rickySan = function(){
           x.type = "stream";
          }
          x.url = imelem.data_src;
-         staticFiles[x.infoHash]= { "element": imelem, "metainfo": x};
+         if(!staticFiles[x.infoHash])
+           staticFiles[x.infoHash]= { "element": [imelem], "metainfo": x};
+         else
+           staticFiles[x.infoHash].element.push(imelem);
          // TODO : add error handling if we don't receive valid metainfo
          logger.DEBUG(xmlhttp.responseText)
          num_files_remaining--;
@@ -94,6 +122,15 @@ window.rickySan = function(){
     {
       var x = imelem[i].getAttribute('data-src');// Fetching img url
       imelem[i].data_src = x;// Setting url value for new attribute 'data-src'
+      if(progress)
+      {
+        var pb = document.createElement("progress");
+        var pb2 = document.createElement("progress");
+        imelem[i].progress = pb;
+        imelem[i].progress2= pb2;
+        imelem[i].parentElement.appendChild(pb);
+        imelem[i].parentElement.appendChild(pb2);
+      }
     }
     ajaxReq(imelem[i].data_src , imelem[i]);
   }

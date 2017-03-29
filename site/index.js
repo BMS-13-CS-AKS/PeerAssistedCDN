@@ -17,8 +17,10 @@ var server = http.createServer( function (req, res) {
       files.forEach(function (fileName) {
         var myPath = path.join("../test_images",fileName)
         myPath = './'+ myPath
+        var par = '<div class="imgPar">'
         var imgSrc = `<img ${prefix}src="${myPath}" alt="${fileName.split('.')[0]}" />`
-        tags.push(imgSrc)
+        var parClose = '</div>'
+        tags.push(par+imgSrc+parClose)
       })
       console.log(tags.length)
 
