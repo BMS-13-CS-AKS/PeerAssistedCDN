@@ -50,11 +50,7 @@ var superPeer = function(){
     logger.DEBUG(responseUint8.byteLength);
     var result = that.onPiece(responseUint8, file, pieceIndex);
     logger.DEBUG("result of setting piece is "+result)
-    if(result)
-    {
-      that.triggerThink();
-    }
-
+    that.triggerThink();
   }
 
   this.triggerThink = function(interval=0){

@@ -1,8 +1,7 @@
 var crypto = require('crypto-browserify')
 var log = require('../util/log.js')
 var fileUtils  = require('../util/fileUtils.js')
-// TODO : remove this once stable
-window.infoHashList = []
+
 var thorFile = function(){
   var that = this;
   this.url;
@@ -10,6 +9,8 @@ var thorFile = function(){
   this.file;
   this.views = {};
   this.type;
+  this.peerCount = 0;
+  this.serverCount = 0;
   // Information about the file
   this.infoHash = new Uint16Array(10);
   this.infoHashStr;
@@ -84,6 +85,7 @@ var thorFile = function(){
     setInfoHash(metaInfo.infoHash);
     this.url = metaInfo.url;
     this.type = metaInfo.type;
+    this.infoHashes = metaInfo.pieceHash
 
     // Derive the other attributes
     this.calculateDetails();
@@ -97,7 +99,7 @@ var thorFile = function(){
   }
   this.setHavePiece = function(index){
     if(this.havePiece(index))
-    return;
+    return false;
     this.haveArrayInt8[Math.floor(index/8)] |= (1<<index%8);
     this.remainingPieces--;
     this.onPieceComplete(index)
@@ -105,9 +107,13 @@ var thorFile = function(){
     {
       this.oncompletion();
     }
+    return true;
   }
   this.setRequestPiece = function(index){
     this.requestArrayInt8[Math.floor(index/8)] |= (1<<index%8);
+  }
+  this.unsetRequestPiece = function(index){
+    this.requestArrayInt8[Math.floor(index/8)] &= ~(1<<index%8);
   }
   // Called on completing download
   // NOTE: not to be called when seeding already completed files
@@ -320,12 +326,14 @@ var thorFile = function(){
     var piece = getPieceNoVal( pieceIndex )
     log.INFO("checking integrity for piece "+pieceIndex)
     iH = crypto.createHash('sha1').update(piece).digest('hex')
-
-    // add it to list
-    // TODO : remove this once stable
-    window.infoHashList[ pieceIndex ] = iH;
-    this.setHavePiece(pieceIndex);
-    return true;
+    if(iH != this.infoHashes[pieceIndex])
+    {
+      logger.ERROR(iH +"!="+this.infoHashes[pieceIndex])
+      this.unsetRequestPiece(pieceIndex);
+      return false;
+    }
+    logger.INFO("Piece "+pieceIndex +" integrity verified");
+    return this.setHavePiece(pieceIndex);
   }
   // Returns the range of the bytes for set of blocks ..
   // .. in a piece in the form:

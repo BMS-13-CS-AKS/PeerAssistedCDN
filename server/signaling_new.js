@@ -125,6 +125,7 @@ wss.on('connection', function(connection) {
       var result = {};
       result.type = 'response';
       result.answer = {};
+      console.log("Received request for"+data.infoHashes[0][0]);
       // Page wise mode
       if(data.mode == 1)
       {
@@ -223,10 +224,10 @@ function getPeers(infoHash) {
   var count = trackers[infoHash].length
 
   // if no of peers is less than 10 then return all peers
-  var result  = [] //stores final value 
+  var result  = [] //stores final value
 
   //randPerm(n) returns array with value 0 to n shuffled randomly
-  var permTable = randPerm(count) 
+  var permTable = randPerm(count)
 
   //sends all peers if count is less than 10
   if (count < 10) {

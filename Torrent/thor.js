@@ -92,6 +92,10 @@ var thor = function(address){
   // attempting connection
   this.connect = function(name){
     logger.INFO("Offering connection to "+ name);
+    if(peerList[name])
+    {
+      return;
+    }
     peerList[name] = new peerChannel(
                                 name,
                                 trackerServer,
@@ -216,18 +220,31 @@ var thor = function(address){
   // When we receive a response from the server after we send a request for
   // the peer list
   var onResponse = function(answer){
-    logger.DEBUG(answer);
+    if(mode)
+    {
+      var peers = answer[pageInfoHash];
+      logger.DEBUG("Received peer list");
+      for(var i=0;i<peers.length;i++)
+      {
+        that.connect(peers[i]);
+      }
+    }
   }
   /***************************************************************************/
   // Extending the superPeer
   var startSuper = function(){
     logger.DEBUG("starting super")
-   morty = new superPeer();
-   morty.triggerThink();
+    morty = new superPeer();
+    morty.triggerThink();
   }
   superPeer.prototype.onPiece = function(pieceArray,file,pieceIndex){
     file.setPiece(pieceIndex, pieceArray);
-    return file.checkPieceIntegrity(pieceIndex);
+    res = file.checkPieceIntegrity(pieceIndex);
+    if(res)
+    {
+      file.serverCount++;
+    }
+    return res;
   }
 
   // This function returns an array of three:
@@ -262,6 +279,7 @@ var thor = function(address){
     {
       return null;
     }
+    fileRes.setRequestPiece(minRes[0]);
     return [fileRes, minRes[0], minRes[1]];
   }
 
@@ -450,7 +468,11 @@ var thor = function(address){
       // -1 indicates that there was no previous piece
       if(this.requestList.pieceIndex != -1)
       {
-        this.requestList.file.checkPieceIntegrity(this.requestList.pieceIndex);
+        res = this.requestList.file.checkPieceIntegrity(this.requestList.pieceIndex);
+        if(res)
+        {
+          this.requestList.file.peerCount++;
+        }
       }
 
       // Choose a new piece
@@ -571,7 +593,14 @@ var thor = function(address){
   // pieceIndex - index of the piece you have
   // TODO
   peerChannel.prototype.sendHave = function ( file , pieceIndex ) {
-
+    if(!this.introduced)
+      return;
+    if(this.introduced != 2)
+    {
+      return;
+    }
+    console.log("heeerere")
+    console.log(this.introduced)
     var length = 22;
     var message = new ArrayBuffer(length);
     var infoHash = new Uint16Array(message,0,10);

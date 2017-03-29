@@ -19,12 +19,15 @@ var peerChannel = function(peerName,signal,configuration){
   // onicecandidate event handler
   var onIceCandidate = function(event){
     console.log("Ice candidate event");
-    if(event.candidate)
+    console.log(event);
+    if(event.candidate){
+      console.log("Sending ice candidate");
       that.signal.sendJSON({
         name:that.peerName,
         type:"candidate",
         candidate:event.candidate
       });
+    }
   }
 
   // Sending offer

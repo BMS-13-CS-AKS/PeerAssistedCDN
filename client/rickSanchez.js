@@ -4,6 +4,12 @@ var thor = require("../Torrent/thor.js");
 // Our Man-of-The hour. Function to do anything and everything.
 window.rickySan = function(){
 
+  var body = document.getElementsByTagName("body")[0]
+  var page_hash = null;
+  if(body.hasAttribute("page-hash"))
+  {
+    page_hash = body.getAttribute("page-hash");
+  }
   var staticFiles = {}; // infoHash dictionary
   var num_files_remaining; // num of files left to retrieve metainfo
   // TODO : remove this once done
@@ -25,6 +31,8 @@ window.rickySan = function(){
   }
   var onComplete = function(){
     var a = new thor("ws://127.0.0.1:9090");
+    if(page_hash)
+      a.setPageWise(page_hash)
     window.a = a;
     for(var infoHash in staticFiles)
     {
