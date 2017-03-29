@@ -4,11 +4,12 @@
   "description": "signaling/tracker approximation",
   "main": "signaling.js",
   "dependencies": {
+    "blessed": "^0.1.81",
     "ws": "^1.1.1"
   },
   "devDependencies": {},
   "scripts": {
-    "start" : "node signaling_new.js"
+    "start": "node signaling_new.js"
   },
   "repository": {
     "type": "git",

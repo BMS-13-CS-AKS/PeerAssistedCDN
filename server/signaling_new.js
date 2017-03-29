@@ -1,3 +1,40 @@
+/**********************************************/
+var blessed = require('blessed');
+// Create a screen object.
+var screen = blessed.screen({
+  smartCSR: true
+});
+screen.title = "Signaling Server";
+
+var box = blessed.ScrollableBox({
+  top: '0px',
+  left: '0px',
+  width: '50%',
+  height: '100%',
+  scrollbar:true,
+  content: str,
+  alwaysScroll: true,
+  scrollbar: {
+    ch: ' ',
+    inverse: true
+  },
+  style: {
+    fg: 'green',
+    bg: 'black',
+    border: {
+      fg: '#f0f0f0'
+    }
+  }
+});
+
+screen.append(box);
+setInterval(function(){screen.render();box.scroll(1);},10);
+// Quit on Escape, q, or Control-C.
+screen.key(['escape', 'q', 'C-c'], function(ch, key) {
+  return process.exit(0);
+});
+console.log = function(){}
+/**********************************************/
 var randPerm = require('../util/random.js')
 // require our websocket library
 var WebSocketServer = require('ws').Server;
@@ -7,12 +44,10 @@ var wss = new WebSocketServer({port: 9090});
 // all connected to the server users
 var users = {};
 var trackers = {};
-
 // when new user connects to our sever
 wss.on('connection', function(connection) {
 
   console.log("New user connected");
-
   //when server gets a message from a connected user
   connection.on('message', function(message) {
     var data;
@@ -37,15 +72,15 @@ wss.on('connection', function(connection) {
       onLogin();
       break;
       case "offer":
-      onOffer()
+      signal(onOffer)
       break;
 
       case "answer":
-      onAnswer()
+      signal(onAnswer)
       break;
 
       case "candidate":
-      onCandidate()
+      signal(onCandidate)
       break;
 
       case "leave":
@@ -73,6 +108,18 @@ wss.on('connection', function(connection) {
       });
     }
 
+    function signal(callback) {
+      if(!users[data.name])
+      {
+        removePeer(data.name);
+        return;
+      }
+      else
+      {
+        callback();
+      }
+    }
+
     function onOffer() {
       //for ex. UserA wants to call UserB
       //if UserB exists then send him offer details
@@ -88,7 +135,6 @@ wss.on('connection', function(connection) {
         console.log("Received offer for invalid peer");
       }
     }
-
     function onAnswer() {
       console.log("Sending answer to: ", data.name,"from "
       ,connection.name);
@@ -176,7 +222,7 @@ wss.on('connection', function(connection) {
   connection.on("close", function() {
     if(connection.name)
     {
-      delete users[connection.name];
+      removePeer(connection.name)
     }
   });
 
@@ -211,11 +257,30 @@ function addPeer(infohash, peer) {
   }
 }
 
-/*TODO : i have sent all peers (which include me also)
-         how do i fix above without breaking getPeers(infoHash) API
-         so i wanted that thing to be handled in client
-*/
-
+// Function to remove peer if dead
+function removePeer(name) {
+  if(users[name])
+  {
+    ihofPeer = users[name].infoHash
+    for(var iH in ihofPeer)
+    {
+      removePeerFromInfoHash(iH, name);
+    }
+    delete users[name]
+  }
+}
+function removePeerFromInfoHash(infoHash, peer) {
+  if(!trackers[infoHash])
+    return;
+  else
+  {
+    var ind = trackers[infoHash].indexOf(peer)
+    if ( ind > -1 )
+    {
+      trackers[infoHash].splice(ind,1);
+    }
+  }
+}
 // Get list of peers from infohash
 function getPeers(infoHash) {
   if (!trackers[infoHash])
@@ -251,7 +316,3 @@ function addInfohash(infoHash) {
   return;
 }
 
-// Remove peer if it's dead
-function removePeer(peer) {
-
-}
