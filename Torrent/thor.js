@@ -335,12 +335,11 @@ var thor = function(address,enable_server){
       blockList :[],
       requested :[]
     }
-
+    this.dataChannel.binaryType = "arraybuffer";
     this.sendHandShake();
   }
 
   peerChannel.prototype.onmessage = function(event){
-
     var message = event.data;
     if(this.introduced == 0)
     {
@@ -456,12 +455,10 @@ var thor = function(address,enable_server){
   //
   peerChannel.prototype.think = function () {
     this.triggerThink.triggered = false;
-
     // If we are not interested in this peer theres no point making a new
     // request
     if(!this.meInterested)
     return;
-
     // Check if current piece in requestList is empty
     if(!this.requestList.blockList.length && !this.requestList.requested.length)
     {
@@ -612,8 +609,6 @@ var thor = function(address,enable_server){
     {
       return;
     }
-    console.log("heeerere")
-    console.log(this.introduced)
     var length = 22;
     var message = new ArrayBuffer(length);
     var infoHash = new Uint16Array(message,0,10);

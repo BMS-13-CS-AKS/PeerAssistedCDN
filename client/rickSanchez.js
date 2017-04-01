@@ -2,7 +2,7 @@ var logger = require("../util/log.js");
 var thor = require("../Torrent/thor.js");
 
 // Our Man-of-The hour. Function to do anything and everything.
-window.rickySan = function(enable_server= true,progress = true){
+window.rickySan = function(enable_server= true,progress = false){
 
   var body = document.getElementsByTagName("body")[0]
   var page_hash = null;
@@ -25,9 +25,6 @@ window.rickySan = function(enable_server= true,progress = true){
 
       var pProg = total!=-1?(peer/total):0;
       var sProg = total!=-1?(server/total):0;
-      logger.INFO(server/total)
-      logger.INFO(peer/total)
-      logger.INFO("Running progress "+infoHash+""+sProg+""+pProg);
       for(var e in staticFiles[infoHash].element)
       {
         staticFiles[infoHash].element[e].progress.value = pProg;
@@ -64,7 +61,10 @@ window.rickySan = function(enable_server= true,progress = true){
     }
     a.onload = onDownload;
     a.start();
-    setInterval(updateProgress,500);
+    if(progress)
+    {
+      setInterval(updateProgress,500);
+    }
   }
   // this function takes in the file name and uses it to make
   // a server request to get the respetive metafile (json file)
