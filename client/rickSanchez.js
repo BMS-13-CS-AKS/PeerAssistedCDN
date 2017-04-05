@@ -2,7 +2,7 @@ var logger = require("../util/log.js");
 var thor = require("../Torrent/thor.js");
 
 // Our Man-of-The hour. Function to do anything and everything.
-window.rickySan = function(enable_server= true,progress = false){
+window.rickySan = function(address, enable_server= true,progress = false){
 
   var body = document.getElementsByTagName("body")[0]
   var page_hash = null;
@@ -50,7 +50,7 @@ window.rickySan = function(enable_server= true,progress = false){
     }
   }
   var onComplete = function(){
-    var a = new thor("ws://127.0.0.1:9090",enable_server);
+    var a = new thor(address,enable_server);
     if(page_hash)
       a.setPageWise(page_hash)
     window.a = a;
