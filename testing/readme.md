@@ -23,6 +23,9 @@
   #builds test script that user embeds into the site
   $ browserify test-script.js -o ../site/scripts/test-script-build.js
   
+  #runs report server
+  $ node report-server.js 
+  
   #create a server named server.local
   $ node server.js server.local 
   
