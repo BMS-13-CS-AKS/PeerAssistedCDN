@@ -8,7 +8,8 @@
     "lookup-multicast-dns": "^1.0.3",
     "register-multicast-dns": "^1.1.0",
     "selenium-webdriver": "^3.3.0",
-    "stream-set": "^1.1.0"
+    "stream-set": "^1.1.0",
+    "websocket-stream": "^4.0.0"
   },
   "devDependencies": {},
   "scripts": {

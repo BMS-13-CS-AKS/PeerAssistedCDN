@@ -13,17 +13,28 @@ var clients = streamSet()
 var server = net.createServer(function(socket){
   //make socket  support json
   socket = jsonStream(socket)
+
   //tracking the clients
   clients.add(socket)
+
   //sending the commands to clients
   process.stdin.on('data', function (data) {
     var message = {
-      to: data.toString().split(' ')[0],
-      command : data.toString().split(' ')[1]
+      from: 'server',
+      command : data.toString()
     }
     socket.write(message)
   })
 
+  //reading response from client 
+	socket.on('data', function (data) {
+    console.log(data.result)
+    /*
+    clients.forEach(function (client) {
+      client.write(data)
+    })
+    */
+	})
 })
 
 server.listen(8088)

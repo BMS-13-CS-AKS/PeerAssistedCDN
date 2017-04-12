@@ -14,41 +14,23 @@ var socket = jsonStream(net.connect(8088, 'server.local'))
 var browsers = []
 //handle command received from the server
 socket.on('data', function(data) {
-  console.log('Recieved command from ', data.from)
-  console.log('Command is ' , data.command)
+  console.log('To', data.to)
+  console.log('Number of Browsers ' , data.command)
 
-  var driver = new webdriver.Builder()
-    .forBrowser('chrome')
-    .build()
-
-  browsers.push(driver)
-
-  driver.get('http://localhost:8000') 
-
-  setTimeout(function () {
-    driver.findElement({id: 'loaded'}).then (function (el) {
-      el.getText().then(function (string) {
-        socket.write({result: string})
-        console.log(string)
-      })
-      //console.log(el)
-      //socket.write({result: el.getText()})
-    })
-  }, 2000)
-
-  console.log('checking haha')
-  var element = driver.wait(until.elementLocated(By.id('loaded'), 10000));
-
-  
-
-
-
-
-  //TODO Use selenium to create 5 different instances of chrome and perform actions   
-
-  //TODO Perform same/different (?) action on each instance according to command received
-
-  //TODO Send the  data from chrome  after above actions are performed
+  var count = 0
+  var n = parseInt(data.command)
+  if (data.to == process.argv[2]) {
+    setInterval( function () {
+      count ++
+      var driver = new webdriver.Builder()
+        .forBrowser('chrome')
+        .build()
+      browsers.push(driver)
+      driver.get('http://localhost:5000/testsite1/')
+      if (count == n)
+        clearInterval(this)
+    }, 5000)
+  }
 })
 
 
