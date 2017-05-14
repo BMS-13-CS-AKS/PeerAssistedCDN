@@ -7,41 +7,63 @@ Extending the traditional centralised content delivery used in websites with a p
 
 ## Installation
 
-Make sure node.js is installed
-Install browserify globally
+
+### Requirements
+
+Ubuntu 14.04 or greater version 
+
+### Install nodejs 
+
+```sh
+    $ https://deb.nodesource.com/setup_7.x | sudo -E bash -
+    $ sudo apt-get install -y nodejs
+  ```
+#### Install browserify
+
 ```sh
   $ npm install -g browserify
 ```
-Note : These instructions are only for hosting the test site.
-
-#### Run the signaling server:
-
-In a new terminal:
+  
+### Run the signaling server:
 
 ```sh
-cd [pathtorepos]/PeerAssistedCDN/server
-npm install # Need not be done if already installed deps
-node signaling.js
+  $ cd [pathtorepos]/PeerAssistedCDN/server
+  $ npm install 
+  $ node signalling_new.js
 ```
 
+### Build torrent
+
+```sh
+  $ cd Torrent
+  $ npm install
+  $ npm run build
+```
+
+### Build client software
+
+```sh
+  $ cd client
+  $ npm run build
+
+```
 #### To host the example site:
 
-In a new terminal
-Update the asgard.js file ( Should be done for every change to Torrent ):
 ```sh
-npm build
-```
-Make sure node-static is installed: 
-
-```sh
-npm install -g node-static # Need not be one of already installed
+  $ cd [pathtorepos]/PeerAssistedCDN/site
+  $ npm install 
+  $ mkdir test_images ## copy all the images to this folder
+  $ node index.js data
 ```
 
-host the files:
+### Create infohash of images 
 
-```sh
-cd [pathtorepos]/PeerAssistedCDN/site
-static -a 0.0.0.0
+``` sh
+  $ cd [pathtorepos]/PeerAssistedCDN/site
+  $ mkdir test_images
+  $ mkdir metaInfo
+  $ cd [pathtorepos]/PeerAssistedCDN/infohash-creator
+  $ npm run build
 ```
 
-## [Get up to date on the progress](https://github.com/BMS-13-CS-AKS/PeerAssistedCDN/wiki/Overview-For-Contributers)
+Then open the browser and type localhost:5000/testsite1

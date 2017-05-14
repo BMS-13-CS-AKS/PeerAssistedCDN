@@ -15,7 +15,7 @@ var server = http.createServer( function (req, res) {
     fs.readdir("test_images", function (err, files) {
       //creates image tag out of each file name
       files.forEach(function (fileName) {
-        var myPath = path.join("../test_images",fileName)
+        var myPath = path.join("..","test_images",fileName)
         myPath = './'+ myPath
         var par = '<div class="imgPar">'
         var imgSrc = `<img ${prefix}src="${myPath}" alt="${fileName.split('.')[0]}" />`
@@ -25,7 +25,7 @@ var server = http.createServer( function (req, res) {
       console.log(tags.length)
 
       //templating using hyperstream
-      fs.createReadStream('testsite1/index.html')
+      fs.createReadStream(path.join("testsite1","index.html"))
         .pipe(hyperstream({
           '#container': tags.join('\n')
         }))
@@ -42,4 +42,6 @@ var server = http.createServer( function (req, res) {
 })
 
 
-server.listen(5000)
+server.listen(5000,function() {
+  console.log('listeining on port 5000')
+})

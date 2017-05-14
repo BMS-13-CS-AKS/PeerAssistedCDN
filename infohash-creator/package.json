@@ -14,7 +14,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "node file-to-meta.js -i ../site/test_images -o ../site/metainfo"
+    "build": "node file-to-meta.js -i ../site/test_images -o ../site/metaInfo"
   },
   "author": "",
   "license": "ISC"
