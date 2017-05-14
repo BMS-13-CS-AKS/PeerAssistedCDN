@@ -1,24 +1,20 @@
 # Peer Assisted Content Delivery
 
-## Description
+Peer assisted content delivery system that uses webrtc connection to deliver image contents of a webpage in a p2p manner between users viewing the images. 
 
-Extending the traditional centralised content delivery used in websites with a p2p network.
-
-
-## Installation
-
-
-### Requirements
+## Requirements
 
 Ubuntu 14.04 or greater version 
+
+## Installation
 
 ### Install nodejs 
 
 ```sh
-    $ https://deb.nodesource.com/setup_7.x | sudo -E bash -
-    $ sudo apt-get install -y nodejs
-  ```
-#### Install browserify
+  $ https://deb.nodesource.com/setup_7.x | sudo -E bash -
+  $ sudo apt-get install -y nodejs
+```
+### Install browserify
 
 ```sh
   $ npm install -g browserify
@@ -47,7 +43,7 @@ Ubuntu 14.04 or greater version
   $ npm run build
 
 ```
-#### To host the example site:
+### To host the example site:
 
 ```sh
   $ cd [pathtorepos]/PeerAssistedCDN/site
@@ -66,4 +62,4 @@ Ubuntu 14.04 or greater version
   $ npm run build
 ```
 
-Then open the browser and type localhost:5000/testsite1
+Then open google chrome and load `http://localhost:5000/testsite1`
